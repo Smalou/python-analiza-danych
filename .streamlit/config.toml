@@ -1,0 +1,15 @@
+# Streamlit theme - korzysta z istniejacych tokenow brandowych projektu.
+# Zrodlo: src/frontend/src/index.css (--brand-primary, --brand-bg, --brand-surface).
+
+[theme]
+primaryColor = "#14284B"          # --brand-primary (deep navy)
+backgroundColor = "#f8fafc"       # --brand-bg
+secondaryBackgroundColor = "#ffffff"  # --brand-surface
+textColor = "#14284B"             # --brand-fg
+font = "sans serif"
+
+[server]
+runOnSave = true
+
+[browser]
+gatherUsageStats = false
