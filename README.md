@@ -21,6 +21,8 @@ Wymagania: Python 3.10+, `pandas`, `streamlit`.
 uv run streamlit run presentation_demo/streamlit_app.py
 ```
 
+**Streamlit Cloud / monorepo:** w ustawieniach aplikacji ustaw **Main file path** na `presentation_demo/streamlit_app.py` i **Root** na katalog, który **zawiera** folder `presentation_demo/` (nie wewnątrz samego pakietu). Dzięki temu `from presentation_demo…` znajdzie pakiet.
+
 Otworzy się przeglądarka na `http://localhost:8501` z całym workflow w wersji
 wizualnej (kolory brandowe, dwukolumnowe porównania, przycisk "Uruchom agenta",
 wykresy, metryki). Idealne pod rzutnik.
@@ -49,24 +51,26 @@ przydatne, jeśli rzutnik dostaje tylko terminal albo na zrzuty do slajdów.
 
 ## Co robi każdy plik
 
+Kod pakietu leży w katalogu `presentation_demo/` (layout pod monorepo: importy `presentation_demo.*` wymagają uruchamiania z **korzenia repozytorium** albo ustawionego `PYTHONPATH` na ten katalog).
+
 | Plik | Rola w prezentacji |
 |---|---|
-| `streamlit_app.py` | UI prezentacyjny (na rzutnik): sceny Wstecz/Dalej, live demo agenta, side-by-side weak vs strong, sekcja z prawdziwym kodem z `src/`. |
-| `run_demo.py` | Wejście terminalowe; pokazuje wszystkie sekcje 1-8 w konsoli (przydatne na zrzuty do slajdów). |
-| `real_code_snippets.py` | 6 wybranych fragmentów z `src/` (Protocol, ABC, async Databricks, duck typing, BM25, pgvector) – współdzielone między Streamlit a terminalem. |
-| `demo_agent_flow.py` | End-to-end flow agenta: pytanie → prompt → mock LLM → SQL → walidacja → mock warehouse → insight + log. |
-| `metadata_context.py` | Słownik biznesowy, definicje KPI, opisy tabel/kolumn. Dwa warianty: **słabe** vs **mocne** metadane. |
-| `sql_guardrails.py` | `validate_sql()` - blokuje DROP/DELETE/UPDATE/wiele statementów, ostrzega przy `SELECT *` i braku filtra po dacie. |
-| `mock_warehouse.py` | Mini-hurtownia w pandas: `core.branch_productivity_fact` + `execute_mock_query()`. |
-| `observability_demo.py` | DataFrame z logami agenta + KPI: failure rate, średni czas, failure rate per metadata_quality. |
-| `finance_kpi_example.py` | Marża brutto: błędna definicja (markup) vs poprawna (gross_margin_pct). |
+| `presentation_demo/streamlit_app.py` | UI prezentacyjny (na rzutnik): sceny Wstecz/Dalej, live demo agenta, side-by-side weak vs strong, sekcja z prawdziwym kodem z `src/`. |
+| `presentation_demo/run_demo.py` | Wejście terminalowe; pokazuje wszystkie sekcje 1-8 w konsoli (przydatne na zrzuty do slajdów). |
+| `presentation_demo/real_code_snippets.py` | 6 wybranych fragmentów z `src/` (Protocol, ABC, async Databricks, duck typing, BM25, pgvector) – współdzielone między Streamlit a terminalem. |
+| `presentation_demo/demo_agent_flow.py` | End-to-end flow agenta: pytanie → prompt → mock LLM → SQL → walidacja → mock warehouse → insight + log. |
+| `presentation_demo/metadata_context.py` | Słownik biznesowy, definicje KPI, opisy tabel/kolumn. Dwa warianty: **słabe** vs **mocne** metadane. |
+| `presentation_demo/sql_guardrails.py` | `validate_sql()` - blokuje DROP/DELETE/UPDATE/wiele statementów, ostrzega przy `SELECT *` i braku filtra po dacie. |
+| `presentation_demo/mock_warehouse.py` | Mini-hurtownia w pandas: `core.branch_productivity_fact` + `execute_mock_query()`. |
+| `presentation_demo/observability_demo.py` | DataFrame z logami agenta + KPI: failure rate, średni czas, failure rate per metadata_quality. |
+| `presentation_demo/finance_kpi_example.py` | Marża brutto: błędna definicja (markup) vs poprawna (gross_margin_pct). |
 
 ---
 
 ## Slajdy - co pokazać kodem
 
 ### Slajd 1 - "Python klei wszystko w jeden przepływ"
-Pokaż **`run_agent_flow`** z `demo_agent_flow.py` (linie ~108-138). Jeden, czytelny
+Pokaż **`run_agent_flow`** z `presentation_demo/demo_agent_flow.py` (linie ~108-138). Jeden, czytelny
 pipeline z 4 kroków. Punktem prezentacji jest to, że cały AI workflow mieści się
 w ~30 liniach Pythona, bo Python ma do dyspozycji LLM, walidator, pandas i logi.
 
@@ -79,14 +83,14 @@ Pokaż obok siebie:
 - `naive_sql_from_weak_context()` (SELECT \*, brak filtra)
 - `grounded_sql_from_strong_context()` (CTE, FILTER, LIMIT, NULLIF)
 
-z pliku `metadata_context.py`.
+z pliku `presentation_demo/metadata_context.py`.
 
 Zdanie do powiedzenia:
 > "To samo pytanie. Ten sam model. Inna jakość metadanych - inna jakość SQL.
 > Definicje biznesowe są kompetencją analityka, nie modelu."
 
 ### Slajd 3 - "Python jako warstwa kontroli wokół AI"
-Pokaż funkcję **`validate_sql`** z `sql_guardrails.py` (linie ~80-130).
+Pokaż funkcję **`validate_sql`** z `presentation_demo/sql_guardrails.py` (linie ~80-130).
 
 Zdanie do powiedzenia:
 > "Model językowy może wygenerować DROP TABLE. Python zatrzymuje to zanim
@@ -176,11 +180,11 @@ Demo prezentacyjne (`presentation_demo/`) odtwarza **te same etapy w skali 1:50*
 
 | Realny komponent | Odpowiednik w demo |
 |---|---|
-| `src/agents/sql_generator.py` (Bedrock + Pydantic) | `mock_llm_generate_sql()` w `demo_agent_flow.py` |
-| `src/agents/sql_validator.py` (regex + dry-run) | `validate_sql()` w `sql_guardrails.py` |
-| `src/utils/vector_store.py` (pgvector + glossary) | `MetadataContext` w `metadata_context.py` |
-| `src/utils/databricks_connector.py` | `execute_mock_query()` w `mock_warehouse.py` |
-| `src/utils/observability_service.py` + structlog | `compute_summary()` w `observability_demo.py` |
+| `src/agents/sql_generator.py` (Bedrock + Pydantic) | `mock_llm_generate_sql()` w `presentation_demo/demo_agent_flow.py` |
+| `src/agents/sql_validator.py` (regex + dry-run) | `validate_sql()` w `presentation_demo/sql_guardrails.py` |
+| `src/utils/vector_store.py` (pgvector + glossary) | `MetadataContext` w `presentation_demo/metadata_context.py` |
+| `src/utils/databricks_connector.py` | `execute_mock_query()` w `presentation_demo/mock_warehouse.py` |
+| `src/utils/observability_service.py` + structlog | `compute_summary()` w `presentation_demo/observability_demo.py` |
 
 **To, czego demo świadomie NIE robi (i co robi system produkcyjny):**
 - prawdziwa autoryzacja, OIDC, audit log, RBAC, row-level security,
