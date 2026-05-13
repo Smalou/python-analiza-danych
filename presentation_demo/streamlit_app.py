@@ -641,6 +641,42 @@ st.markdown(
             color: #C8D8F0 !important;
         }
 
+        /* Expander (np. „Co dokładnie zobaczył model AI”) — domyślne jasne tło + jasny tekst kodu = niewidoczne */
+        [data-testid="stExpander"] details {
+            background: linear-gradient(135deg, rgba(16, 36, 68, 0.92), rgba(8, 20, 40, 0.98)) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+        }
+
+        [data-testid="stExpander"] summary,
+        [data-testid="stExpander"] summary p,
+        [data-testid="stExpander"] summary span {
+            color: var(--text) !important;
+        }
+
+        [data-testid="stExpander"] details > div,
+        [data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+            background: rgba(6, 18, 38, 0.55) !important;
+            color: var(--text) !important;
+        }
+
+        [data-testid="stExpander"] [data-testid="stMarkdownContainer"],
+        [data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
+        [data-testid="stExpander"] [data-testid="stMarkdownContainer"] span {
+            color: rgba(255, 255, 255, 0.92) !important;
+        }
+
+        [data-testid="stExpander"] [data-testid="stCodeBlock"],
+        [data-testid="stExpander"] [data-testid="stCode"] {
+            background: #061525 !important;
+            border: 1px solid rgba(134, 168, 255, 0.4) !important;
+        }
+
+        [data-testid="stExpander"] [data-testid="stCodeBlock"] code.hljs,
+        [data-testid="stExpander"] [data-testid="stCode"] code.hljs {
+            color: #EEF2FF !important;
+        }
+
         .footer-note {
             margin-top: 1.4rem;
             padding-top: 0.9rem;
@@ -1010,7 +1046,7 @@ def run_agent(state: DemoState) -> None:
         st.dataframe(result.rows, width="stretch", hide_index=True)
 
     with st.expander("Co dokładnie zobaczył model AI"):
-        st.code(prompt, language="markdown")
+        st.code(prompt, language="text")
 
 
 def go_previous() -> None:
