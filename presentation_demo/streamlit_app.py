@@ -1308,34 +1308,14 @@ def scene_live_demo(state: DemoState) -> None:
     render_eyebrow("Demo na żywo")
     render_medium_title("Zobacz, jak Python prowadzi AI krok po kroku.")
     render_subtitle(
-        "Wpisz pytanie po polsku i uruchom agenta. Analiza — mock LLM, SQL, walidacja, zapytanie do hurtowni — "
-        "dzieje się dopiero po kliknięciu, tak jak w rzeczywistym pipeline."
+        "Wpisz pytanie po polsku i uruchom agenta. Najpierw animowany status, potem SQL, walidacja i wynik z mock hurtowni — "
+        "wszystko dopiero po kliknięciu, tak jak w rzeczywistym pipeline."
     )
 
     if "live_demo_question" not in st.session_state:
         st.session_state.live_demo_question = DEFAULT_QUESTION
 
-    left, right = st.columns([1, 1.35], vertical_alignment="top")
-    with left:
-        render_section_title("Co zaraz zobaczymy")
-        render_flow_steps(
-            [
-                ("Pytanie biznesowe", "Po polsku, bez technicznego żargonu."),
-                ("Kontekst biznesowy", "Słownik definicji firmy."),
-                ("Polecenie dla AI", "Pytanie + kontekst w jednej instrukcji."),
-                ("Zapytanie SQL", "AI tworzy kod do bazy."),
-                ("Sprawdzenie", "Czy bezpieczne? Czy ma sens?"),
-                ("Odpowiedź", "Tabela + krótki komentarz biznesowy."),
-            ]
-        )
-    with right:
-        render_section_title("Zanim uruchomisz agenta")
-        st.info(
-            "Wygenerowane SQL, wynik walidacji i tabela z bazy pojawią się **poniżej** dopiero po uruchomieniu — "
-            "najpierw zobaczysz animowany status, potem pełny wynik (mock LLM, **mocny** kontekst metadanych)."
-        )
-
-    st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 0.35rem;"></div>', unsafe_allow_html=True)
     render_section_title("Pytanie od użytkownika")
     st.text_area(
         "Pytanie biznesowe",
