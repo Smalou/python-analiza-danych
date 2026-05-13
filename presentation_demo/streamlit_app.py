@@ -1,19 +1,4 @@
-"""Streamlit jako pełna prezentacja — wersja zoptymalizowana pod nietechniczną widownię.
 
-Uruchomienie:
-    uv run streamlit run presentation_demo/streamlit_app.py
-
-Audytorium: studenci finansów i rachunkowości.
-Znają Excel, KPI, raporty i logikę biznesową. Nie muszą znać SQL, Pythona ani LLM.
-
-Cel prezentacji:
-Pokazać, że Python w erze AI staje się praktyczną warstwą integracyjną:
-  pytanie biznesowe -> kontekst/metadane -> LLM -> SQL -> walidacja -> warehouse -> insight -> observability.
-
-Najważniejsza teza:
-AI obniża barierę techniczną, ale zwiększa znaczenie rozumienia danych,
-KPI, przepływów informacji i walidacji wyników.
-"""
 
 from __future__ import annotations
 
@@ -466,15 +451,31 @@ st.markdown(
         .insight-row.good .ico { color: var(--success); }
         .insight-row.bad .ico { color: var(--danger); }
 
-        .code-card {
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: var(--surface);
-            padding: 1rem 1.1rem;
-            margin-bottom: 1rem;
+        .foundation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+            margin-top: 0.3rem;
         }
 
-        /* ----- Slajd „Kod” (zakładki + st.code + st.info): czytelność na ciemnym tle ----- */
+        .foundation-item {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--surface);
+            padding: 0.95rem 1rem;
+        }
+
+        .foundation-item strong {
+            color: var(--text);
+        }
+
+        .foundation-item span {
+            display: block;
+            color: var(--muted);
+            margin-top: 0.25rem;
+            line-height: 1.45;
+        }
+
         .real-code-explain {
             color: rgba(255, 255, 255, 0.88) !important;
             line-height: 1.58;
@@ -483,22 +484,20 @@ st.markdown(
             margin-bottom: 1rem !important;
         }
 
-        /* Odstęp między podtytułem slajdu a rzędem zakładek */
         .before-code-tabs {
             height: 0.75rem;
             min-height: 0.75rem;
         }
 
-        /* W treści zakładki: lżej rozłóż opis i ramkę info */
         [data-testid="stTabs"] [data-testid="stAlert"] {
             margin-top: 0.6rem !important;
         }
 
-        /* Zakładki (jedyny st.tabs = slajd kodu): więcej odstępu i czytelniejszy układ */
         div[data-testid="stTabs"] {
             margin-top: 0.5rem !important;
             margin-bottom: 0.25rem !important;
         }
+
         div[data-testid="stTabs"] [data-baseweb="tab-list"] {
             display: flex !important;
             flex-wrap: wrap !important;
@@ -510,7 +509,7 @@ st.markdown(
             border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
             background: transparent !important;
         }
-        /* Pojedyncza zakładka — „chip” z odstępem zamiast zlepionych etykiet */
+
         div[data-testid="stTabs"] [data-baseweb="tab"],
         div[data-testid="stTabs"] button[role="tab"] {
             flex: 0 1 auto !important;
@@ -528,12 +527,14 @@ st.markdown(
             transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
             box-shadow: none !important;
         }
+
         div[data-testid="stTabs"] [data-baseweb="tab"]:hover,
         div[data-testid="stTabs"] button[role="tab"]:hover {
             color: #FFFFFF !important;
             background: rgba(134, 168, 255, 0.14) !important;
             border-color: rgba(134, 168, 255, 0.35) !important;
         }
+
         div[data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"],
         div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
             color: #FFFFFF !important;
@@ -543,23 +544,23 @@ st.markdown(
             font-weight: 600 !important;
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2) !important;
         }
-        /* Treść pod zakładkami — odsunięcie od paska */
+
         div[data-testid="stTabs"] [role="tabpanel"],
         div[data-testid="stTabs"] [data-baseweb="tab-panel"] {
             padding-top: 1.35rem !important;
         }
-        /* Fallback: Streamlit owija panele w vertical block */
+
         div[data-testid="stTabs"] > div:nth-child(2) {
             padding-top: 0.15rem !important;
         }
 
-        /* st.info / alert — jasna czcionka na wyraźnym tle */
         div[data-testid="stAlert"],
         div[data-testid="stAlertContainer"] {
             background: linear-gradient(135deg, rgba(25, 52, 95, 0.95), rgba(12, 28, 52, 0.92)) !important;
             border: 1px solid rgba(134, 168, 255, 0.45) !important;
             border-radius: 14px !important;
         }
+
         div[data-testid="stAlert"] p,
         div[data-testid="stAlert"] span,
         div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] p,
@@ -568,13 +569,13 @@ st.markdown(
             color: rgba(255, 255, 255, 0.94) !important;
             -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
         }
+
         div[data-testid="stAlert"] [data-testid="stIcon"],
         div[data-testid="stAlertContainer"] [data-testid="stIcon"] {
             color: var(--accent-strong) !important;
             fill: var(--accent-strong) !important;
         }
 
-        /* Blok kodu z st.code — wspólne style dla stCodeBlock / stCode (różne wersje Streamlit) */
         [data-testid="stCodeBlock"],
         [data-testid="stCode"] {
             background: #061525 !important;
@@ -584,6 +585,7 @@ st.markdown(
                 inset 0 1px 0 rgba(255, 255, 255, 0.06),
                 0 8px 28px rgba(0, 0, 0, 0.35) !important;
         }
+
         [data-testid="stCodeBlock"] pre,
         [data-testid="stCodeBlock"] code,
         [data-testid="stCode"] pre,
@@ -591,7 +593,7 @@ st.markdown(
             background: transparent !important;
             color: #EEF2FF !important;
         }
-        /* highlight.js — jaśniejsze tokeny na navy */
+
         [data-testid="stCodeBlock"] .hljs-keyword,
         [data-testid="stCode"] .hljs-keyword,
         [data-testid="stCodeBlock"] .hljs-selector-tag,
@@ -602,6 +604,7 @@ st.markdown(
         [data-testid="stCode"] .hljs-name {
             color: #7EE7FF !important;
         }
+
         [data-testid="stCodeBlock"] .hljs-string,
         [data-testid="stCode"] .hljs-string,
         [data-testid="stCodeBlock"] .hljs-attr,
@@ -610,23 +613,27 @@ st.markdown(
         [data-testid="stCode"] .hljs-template-variable {
             color: #9EF0B8 !important;
         }
+
         [data-testid="stCodeBlock"] .hljs-comment,
         [data-testid="stCode"] .hljs-comment {
             color: rgba(255, 255, 255, 0.50) !important;
             font-style: italic;
         }
+
         [data-testid="stCodeBlock"] .hljs-number,
         [data-testid="stCode"] .hljs-number,
         [data-testid="stCodeBlock"] .hljs-literal,
         [data-testid="stCode"] .hljs-literal {
             color: #FFD49A !important;
         }
+
         [data-testid="stCodeBlock"] .hljs-title,
         [data-testid="stCode"] .hljs-title,
         [data-testid="stCodeBlock"] .hljs-function .hljs-title,
         [data-testid="stCode"] .hljs-function .hljs-title {
             color: #D4B8FF !important;
         }
+
         [data-testid="stCodeBlock"] .hljs-params,
         [data-testid="stCode"] .hljs-params,
         [data-testid="stCodeBlock"] .hljs-variable,
@@ -689,142 +696,116 @@ class PresentationCodeSnippet:
 
 
 # -----------------------------------------------------------------------------
-# Curated code snippets for scene 9
+# Curated code snippets for scene 10
 # -----------------------------------------------------------------------------
 
 
 PRESENTATION_CODE_SNIPPETS = [
     PresentationCodeSnippet(
-        title="1. KPI jako kod — definicja biznesowa nie może być domysłem AI",
+        title="1. Słownik — definicja KPI jako dane wejściowe dla AI",
         business_message=(
-            "W finansach najważniejsze pytanie często nie brzmi „jak policzyć?”, "
-            "tylko „co dokładnie liczymy?”."
+            "To jest zwykły słownik Pythona. Ale w praktyce może reprezentować definicję KPI, "
+            "którą model AI dostaje jako kontekst."
         ),
-        code='''from dataclasses import dataclass
+        code='''kpi_definition = {
+    "name": "gross_margin_pct",
+    "business_definition": "Marża brutto jako procent przychodu",
+    "formula": "(revenue - cost) / revenue",
+    "owner": "Finance Controlling",
+}
 
+question = "Które oddziały mają największy spadek wyników rok do roku?"
 
-@dataclass(frozen=True)
-class KPIDefinition:
-    name: str
-    business_definition: str
-    formula: str
-    owner: str
-
-
-GROSS_MARGIN_PCT = KPIDefinition(
-    name="gross_margin_pct",
-    business_definition="Gross margin as percentage of revenue",
-    formula="(revenue - cost) / revenue",
-    owner="Finance Controlling",
-)
-
-# AI nie powinno zgadywać definicji KPI.
-# Powinno dostać ją jako jawny kontekst.
+# AI nie powinno zgadywać, czym jest „wynik”.
+# Python przekazuje mu definicję biznesową.
 ''',
         discussion_point=(
-            "To jest moment, w którym wiedza finansowa staje się częścią systemu. "
-            "AI może pisać SQL, ale definicja KPI musi pochodzić od ludzi domenowych."
+            "To łączy Waszą wiedzę finansową z technologią. KPI nie jest magicznym polem w raporcie — "
+            "to definicja, którą można zapisać i przekazać systemowi."
         ),
     ),
     PresentationCodeSnippet(
-        title="2. Python buduje kontekst dla AI",
+        title="2. Funkcja — Python buduje instrukcję dla AI",
         business_message=(
-            "Model językowy sam z siebie nie zna firmowych definicji, nazw tabel ani logiki raportowania."
+            "Funkcja bierze pytanie, definicję KPI i opis danych, a potem składa z tego prompt dla modelu."
         ),
-        code='''def build_prompt(question: str, kpi: KPIDefinition, table_description: str) -> str:
+        code='''def build_prompt(question, kpi_definition, table_description):
     return f"""
-You are a finance analytics assistant.
+    Pytanie użytkownika:
+    {question}
 
-User question:
-{question}
+    Definicja KPI:
+    {kpi_definition["name"]}: {kpi_definition["business_definition"]}
+    Wzór: {kpi_definition["formula"]}
 
-Business KPI definition:
-{kpi.name}: {kpi.business_definition}
-Formula: {kpi.formula}
-Owner: {kpi.owner}
+    Dostępne dane:
+    {table_description}
 
-Available data:
-{table_description}
-
-Generate SQL that follows the business definition.
-"""
+    Wygeneruj SQL zgodny z definicją KPI.
+    """
 
 
 prompt = build_prompt(
-    question="Które oddziały mają największy spadek wyników rok do roku?",
-    kpi=GROSS_MARGIN_PCT,
-    table_description="branch_monthly_performance: branch, month, revenue, cost",
+    question,
+    kpi_definition,
+    "branch_monthly_performance: branch, month, revenue, cost",
 )
 ''',
         discussion_point=(
-            "Python działa tu jak tłumacz między człowiekiem a modelem AI: bierze pytanie, "
-            "dokłada firmowy kontekst i dopiero wtedy prosi model o odpowiedź."
+            "To nie jest zaawansowana magia. To funkcja. Różnica polega na tym, że dziś taka funkcja "
+            "może sterować modelem AI, a nie tylko liczyć wartość w tabeli."
         ),
     ),
     PresentationCodeSnippet(
-        title="3. Guardrails — AI nie dostaje pełnego zaufania",
+        title="3. If — Python kontroluje wynik AI",
         business_message=(
-            "AI może wygenerować SQL, ale Python powinien zdecydować, czy wolno go wykonać."
+            "Warunki z podstaw Pythona mogą być prostą warstwą bezpieczeństwa dla wygenerowanego SQL."
         ),
-        code='''BLOCKED_SQL = ["DROP ", "DELETE ", "TRUNCATE ", "UPDATE ", "INSERT "]
+        code='''blocked_words = ["DROP", "DELETE", "TRUNCATE", "UPDATE"]
 
+generated_sql = "SELECT * FROM branch_monthly_performance"
+issues = []
 
-def validate_sql(sql: str) -> list[str]:
-    issues = []
-    normalized = sql.upper()
+for word in blocked_words:
+    if word in generated_sql.upper():
+        issues.append(f"Zablokowane słowo: {word}")
 
-    for keyword in BLOCKED_SQL:
-        if keyword in normalized:
-            issues.append(f"Blocked keyword detected: {keyword.strip()}")
-
-    if "SELECT *" in normalized:
-        issues.append("Avoid SELECT * — query should be explicit.")
-
-    if "WHERE" not in normalized:
-        issues.append("Missing WHERE clause — possible uncontrolled data scan.")
-
-    return issues
-
-
-issues = validate_sql(generated_sql)
+if "WHERE" not in generated_sql.upper():
+    issues.append("Brak filtra — zapytanie może pobrać za dużo danych")
 
 if issues:
-    raise ValueError(f"SQL blocked: {issues}")
+    print("Nie uruchamiamy zapytania:", issues)
+else:
+    print("Zapytanie może zostać wykonane")
 ''',
         discussion_point=(
-            "To jest bardzo ważne: AI nie powinno mieć bezpośredniego dostępu do firmowych danych. "
-            "Python tworzy warstwę kontroli."
+            "AI może wygenerować kod, ale nie musi dostać pełnego zaufania. Prosty `if` może zdecydować, "
+            "czy wynik AI przechodzi dalej, czy zostaje zatrzymany."
         ),
     ),
     PresentationCodeSnippet(
-        title="4. Observability — mierzymy, czy AI naprawdę działa",
+        title="4. Pandas — mierzymy, czy agentowi można ufać",
         business_message=(
-            "W organizacji nie wystarczy powiedzieć, że agent działa. Trzeba pokazać liczby."
+            "DataFrame z logami pozwala sprawdzić, czy agent działa dobrze i gdzie popełnia błędy."
         ),
         code='''import pandas as pd
 
-
 logs = pd.DataFrame([
-    {"question_id": 1, "metadata": "strong", "status": "success", "time_s": 1.4},
-    {"question_id": 2, "metadata": "weak", "status": "failed", "time_s": 2.8},
-    {"question_id": 3, "metadata": "strong", "status": "success", "time_s": 1.7},
-    {"question_id": 4, "metadata": "weak", "status": "failed", "time_s": 3.1},
+    {"context": "strong", "status": "success"},
+    {"context": "strong", "status": "success"},
+    {"context": "weak", "status": "failed"},
+    {"context": "weak", "status": "failed"},
 ])
 
-failure_rate = (logs["status"] == "failed").mean()
+logs["failed"] = logs["status"] == "failed"
 
-failure_by_metadata = (
-    logs.assign(failed=logs["status"] == "failed")
-        .groupby("metadata")["failed"]
-        .mean()
-)
+failure_rate = logs.groupby("context")["failed"].mean()
 
-print(f"Failure rate: {failure_rate:.0%}")
-print(failure_by_metadata)
+print(failure_rate)
 ''',
         discussion_point=(
-            "To zamienia AI z efektownego demo w system, którym można zarządzać: "
-            "mierzymy błędy, czas odpowiedzi i wpływ jakości metadanych."
+            "To jest dokładnie ten sam pandas, którego używa się w analizie danych. Tylko tutaj analizujemy nie sprzedaż, "
+            "ale jakość działania systemu AI."
         ),
     ),
 ]
@@ -893,8 +874,8 @@ def render_progress(scene_no: int, total: int) -> None:
 
 
 def render_pills(labels: list[str]) -> None:
-    html = "".join(f'<span class="pill">{label}</span>' for label in labels)
-    st.markdown(html, unsafe_allow_html=True)
+    html_text = "".join(f'<span class="pill">{label}</span>' for label in labels)
+    st.markdown(html_text, unsafe_allow_html=True)
 
 
 def render_card(title: str, body: str, *, strong: bool = False) -> None:
@@ -952,6 +933,18 @@ def render_insight_list(items: list[tuple[bool, str]]) -> None:
             f'<div class="insight-row {cls}"><span class="ico">{ico}</span>{text}</div>'
         )
     st.markdown("".join(rows), unsafe_allow_html=True)
+
+
+def render_foundation_item(title: str, body: str) -> None:
+    st.markdown(
+        f"""
+        <div class="foundation-item">
+            <strong>{html.escape(title)}</strong>
+            <span>{html.escape(body)}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_validation(result: ValidationResult) -> None:
@@ -1162,6 +1155,42 @@ def scene_python_role(_: DemoState) -> None:
     )
 
 
+def scene_foundations(_: DemoState) -> None:
+    render_eyebrow("To są te same podstawy")
+    render_medium_title("Zaawansowane systemy AI stoją na prostych elementach Pythona.")
+    render_subtitle(
+        "To, czego uczyliście się na przedmiocie, nie jest tylko ćwiczeniem akademickim. "
+        "To ten sam fundament, z którego buduje się narzędzia łączące dane, biznes i AI."
+    )
+
+    left, right = st.columns([1.05, 1.15], vertical_alignment="top")
+
+    with left:
+        render_section_title("Fundament z zajęć")
+        st.markdown('<div class="foundation-grid">', unsafe_allow_html=True)
+        render_foundation_item("Słowniki", "Przechowują definicje KPI, konfigurację i kontekst biznesowy.")
+        render_foundation_item("Funkcje", "Dzielą proces na kroki: prompt, walidacja, wykonanie, wynik.")
+        render_foundation_item("if / warunki", "Kontrolują, czy wynik AI można bezpiecznie wykonać.")
+        render_foundation_item("pandas", "Analizuje dane, logi, skuteczność i błędy działania systemu.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with right:
+        render_section_title("To samo w systemie AI")
+        render_flow_steps(
+            [
+                ("Słownik KPI", "Definicja marży, właściciel, wzór, opis biznesowy."),
+                ("Funkcja promptu", "Składa pytanie użytkownika z kontekstem dla AI."),
+                ("Warunek bezpieczeństwa", "Blokuje ryzykowne zapytania przed wykonaniem."),
+                ("DataFrame z logami", "Pokazuje, kiedy agent działa, a kiedy się myli."),
+            ]
+        )
+
+    render_statement(
+        "Nie musicie od razu znać architektury AI systemów. Ale jeśli rozumiecie słowniki, "
+        "funkcje, warunki i pandas — rozumiecie fundament."
+    )
+
+
 def scene_business_question(state: DemoState) -> None:
     render_eyebrow("Nowy interfejs analityki")
     render_medium_title("Wystarczy zapytać po polsku.")
@@ -1266,26 +1295,26 @@ def scene_live_demo(state: DemoState) -> None:
 
 def scene_guardrails(state: DemoState) -> None:
     render_eyebrow("Kontrola wyników AI")
-    render_medium_title("AI samo w sobie nie jest godne zaufania.")
+    render_medium_title("AI jest szybkie, ale wymaga kontroli.")
     render_subtitle(
         "Python sprawdza każde zapytanie, zanim ono dotknie firmowych danych. "
         "Jak wewnętrzny audyt — tylko że dzieje się automatycznie."
     )
 
-    risky_sql = "SELECT * FROM core.users; DROP TABLE core.users;"
+    risky_sql = "SELECT * FROM branch_monthly_performance"
     c1, c2 = st.columns(2, vertical_alignment="top")
     with c1:
-        render_section_title("✓ Bezpieczne zapytanie")
+        render_section_title("✓ Lepsze zapytanie")
         st.code(state.strong_sql, language="sql")
         render_validation(validate_sql(state.strong_sql))
     with c2:
-        render_section_title("✕ Niebezpieczne zapytanie — zatrzymane")
+        render_section_title("✕ Ryzykowne zapytanie")
         st.code(risky_sql, language="sql")
         render_validation(validate_sql(risky_sql))
 
     render_statement(
-        "AI potrafi wygenerować polecenie usunięcia całej bazy danych. "
-        "Python potrafi to zatrzymać — zanim cokolwiek się stanie."
+        "Najczęstsze ryzyko w analityce AI to nie spektakularna awaria, tylko pewnie brzmiąca odpowiedź "
+        "oparta na złej definicji, braku filtra lub zbyt szerokim zakresie danych."
     )
 
 
@@ -1378,11 +1407,11 @@ def scene_finance_kpi(_: DemoState) -> None:
 
 
 def scene_real_code(_: DemoState) -> None:
-    render_eyebrow("Pod spodem to wciąż Python")
-    render_medium_title("Najciekawsze nie jest to, że AI pisze kod. Najciekawsze jest to, co Python kontroluje.")
+    render_eyebrow("Podstawy Pythona w praktyce")
+    render_medium_title("To, co wygląda jak system AI, składa się z elementów, które już znacie.")
     render_subtitle(
-        "Cztery krótkie fragmenty pokazują, gdzie w takim systemie zostaje człowiek: "
-        "definicje KPI, kontekst biznesowy, granice bezpieczeństwa i pomiar jakości."
+        "Cztery krótkie przykłady: słownik, funkcja, warunek i pandas. "
+        "To wystarczy, żeby zrozumieć logikę bardzo zaawansowanego rozwiązania."
     )
 
     st.markdown('<div class="before-code-tabs"></div>', unsafe_allow_html=True)
@@ -1403,8 +1432,8 @@ def scene_real_code(_: DemoState) -> None:
                 st.code(snippet.code, language="python")
 
     render_statement(
-        "Python nie jest tu tylko składnią. Jest warstwą decyzyjną: mówi AI, "
-        "jaki jest kontekst, czego nie wolno zrobić i jak mierzymy jakość odpowiedzi."
+        "To nie są abstrakcyjne podstawy. Słownik, funkcja, if i pandas mogą stać się szkieletem "
+        "systemu, który łączy wiedzę finansową, dane i AI."
     )
 
 
@@ -1413,10 +1442,10 @@ def scene_conclusion(_: DemoState) -> None:
         """
         <div class="hero-panel">
             <div class="eyebrow">Podsumowanie</div>
-            <div class="big-title">Python to dla analityka tym, czym Excel był dla poprzedniego pokolenia.</div>
+            <div class="big-title">Podstawy Pythona dają dźwignię. AI tę dźwignię wzmacnia.</div>
             <div class="subtitle">
-                Nie po to, by zostać programistą. Po to, by mieć kontrolę
-                nad danymi, AI i własnymi decyzjami biznesowymi.
+                Nie po to, by każdy został programistą. Po to, by osoby domenowe mogły budować,
+                automatyzować i kontrolować coraz bardziej zaawansowane rozwiązania analityczne.
             </div>
         </div>
         """,
@@ -1444,20 +1473,21 @@ def scene_conclusion(_: DemoState) -> None:
 
     render_statement(
         "Największą przewagą nie będzie samo używanie AI. Będzie nią rozumienie, "
-        "kiedy AI daje odpowiedź, której można zaufać."
+        "kiedy AI daje odpowiedź, której można zaufać — i umiejętność zbudowania prostego systemu, który to sprawdza."
     )
 
 
 SCENES: list[Scene] = [
     Scene("scale", "Wprowadzenie", scene_scale),
     Scene("python_role", "Dlaczego Python", scene_python_role),
+    Scene("foundations", "Fundamenty z zajęć", scene_foundations),
     Scene("business_question", "Wystarczy zapytać po polsku", scene_business_question),
     Scene("metadata", "Kontekst zmienia wszystko", scene_metadata),
     Scene("live_demo", "Demo na żywo", scene_live_demo),
     Scene("guardrails", "Kontrola wyników AI", scene_guardrails),
     Scene("observability", "Czy to działa naprawdę", scene_observability),
     Scene("finance_kpi", "KPI to wciąż decyzja człowieka", scene_finance_kpi),
-    Scene("real_code", "Pod spodem to kod", scene_real_code),
+    Scene("real_code", "Pod spodem to znane podstawy", scene_real_code),
     Scene("conclusion", "Podsumowanie", scene_conclusion),
 ]
 
