@@ -641,22 +641,37 @@ st.markdown(
             color: #C8D8F0 !important;
         }
 
-        /* Expander (np. „Co dokładnie zobaczył model AI”) — domyślne jasne tło + jasny tekst kodu = niewidoczne */
+        /* Expander + st.status: Streamlit na summary w stanie „open” nakłada bgMix (często jasne),
+           a aplikacja wymusza jasny tekst na .stApp — po rozwinięciu wygląda to jak biały na białym. */
         [data-testid="stExpander"] details {
             background: linear-gradient(135deg, rgba(16, 36, 68, 0.92), rgba(8, 20, 40, 0.98)) !important;
             border: 1px solid var(--line) !important;
             border-radius: 14px !important;
         }
 
-        [data-testid="stExpander"] summary,
+        [data-testid="stExpander"] summary {
+            background: linear-gradient(135deg, rgba(16, 36, 68, 0.88), rgba(8, 20, 40, 0.95)) !important;
+            color: var(--text) !important;
+        }
+
+        [data-testid="stExpander"] summary:hover,
+        [data-testid="stExpander"] summary:focus-visible,
+        [data-testid="stExpander"] summary:active {
+            background: rgba(134, 168, 255, 0.16) !important;
+            color: var(--text) !important;
+        }
+
         [data-testid="stExpander"] summary p,
-        [data-testid="stExpander"] summary span {
+        [data-testid="stExpander"] summary span,
+        [data-testid="stExpander"] summary [data-testid="stMarkdownContainer"],
+        [data-testid="stExpander"] summary [data-testid="stMarkdownContainer"] p,
+        [data-testid="stExpander"] summary [data-testid="stMarkdownContainer"] span {
             color: var(--text) !important;
         }
 
         [data-testid="stExpander"] details > div,
         [data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-            background: rgba(6, 18, 38, 0.55) !important;
+            background: rgba(6, 18, 38, 0.96) !important;
             color: var(--text) !important;
         }
 
