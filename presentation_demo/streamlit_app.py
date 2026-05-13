@@ -1010,7 +1010,7 @@ def render_validation(result: ValidationResult) -> None:
 
 
 def run_agent(state: DemoState) -> None:
-    """Live demo: pokazuje cztery kroki przepływu z animowanym statusem."""
+    """Live demo: pokazuje pięć kroków przepływu z animowanym statusem."""
     with st.status("Asystent AI pracuje…", expanded=True) as status:
         st.write("1. Łączy pytanie z definicjami biznesowymi.")
         time.sleep(0.25)
@@ -1030,12 +1030,15 @@ def run_agent(state: DemoState) -> None:
             render_validation(state.validation)
             return
 
-        st.write(
-            "4. Pobiera odpowiedź z bazy — pokazuje tabelę (wizualizacja danych) "
-            "oraz krótkie podsumowanie tekstowe zrozumiałe dla użytkownika biznesowego."
-        )
+        st.write("4. Wykonuje zapytanie w hurtowni i pobiera dane.")
         time.sleep(0.25)
         result = execute_mock_query(state.strong_sql)
+
+        st.write(
+            "5. Prezentuje wynik: tabela (wizualizacja danych) oraz krótkie podsumowanie "
+            "tekstowe zrozumiałe dla użytkownika biznesowego."
+        )
+        time.sleep(0.25)
         insight = summarize_result(result)
         status.update(label="Gotowe.", state="complete")
 
