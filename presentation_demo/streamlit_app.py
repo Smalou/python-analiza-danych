@@ -1030,7 +1030,10 @@ def run_agent(state: DemoState) -> None:
             render_validation(state.validation)
             return
 
-        st.write("4. Pobiera odpowiedź z bazy.")
+        st.write(
+            "4. Pobiera odpowiedź z bazy — pokazuje tabelę (wizualizacja danych) "
+            "oraz krótkie podsumowanie tekstowe zrozumiałe dla użytkownika biznesowego."
+        )
         time.sleep(0.25)
         result = execute_mock_query(state.strong_sql)
         insight = summarize_result(result)
