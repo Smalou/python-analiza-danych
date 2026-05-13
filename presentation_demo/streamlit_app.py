@@ -1335,11 +1335,6 @@ def scene_live_demo(state: DemoState) -> None:
         )
         run_agent(live_state)
 
-    st.caption(
-        "Edytuj pytanie w polu powyżej — dopiero **Uruchom asystenta AI** uruchamia mock LLM, "
-        "buduje pełny prompt (mocny kontekst), pokazuje SQL, walidację i ewentualny wynik z hurtowni."
-    )
-
 
 def scene_guardrails(state: DemoState) -> None:
     render_eyebrow("Kontrola wyników AI")
