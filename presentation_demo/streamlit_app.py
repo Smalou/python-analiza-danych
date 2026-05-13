@@ -1268,6 +1268,12 @@ def scene_live_demo(state: DemoState) -> None:
         "Każdy etap jest widoczny — nic się nie dzieje w czarnej skrzynce."
     )
 
+    if "live_demo_question" not in st.session_state:
+        st.session_state.live_demo_question = DEFAULT_QUESTION
+    user_question = st.session_state.live_demo_question
+    live_strong_sql = mock_llm_generate_sql(user_question, STRONG_CONTEXT)
+    live_validation = validate_sql(live_strong_sql)
+
     left, right = st.columns([1, 1.35], vertical_alignment="top")
     with left:
         render_section_title("Co zaraz zobaczymy")
@@ -1283,14 +1289,34 @@ def scene_live_demo(state: DemoState) -> None:
         )
     with right:
         render_section_title("Zapytanie, które wygenerowało AI")
-        st.code(state.strong_sql, language="sql")
-        render_validation(state.validation)
+        st.code(live_strong_sql, language="sql")
+        render_validation(live_validation)
+        st.markdown('<div style="height: 0.55rem;"></div>', unsafe_allow_html=True)
+        render_section_title("Pytanie od użytkownika")
+        st.caption(
+            "Edytuj poniżej — podgląd SQL i walidacji odświeżą się po zmianie treści; "
+            "„Uruchom asystenta AI” użyje tego pytania w całym pipeline (mock LLM, mocny kontekst)."
+        )
+        st.text_area(
+            "Pytanie biznesowe",
+            key="live_demo_question",
+            height=110,
+            label_visibility="collapsed",
+        )
 
-    st.markdown('<div style="height: 0.4rem;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 0.45rem;"></div>', unsafe_allow_html=True)
+    q_run = st.session_state.live_demo_question
+    run_sql = mock_llm_generate_sql(q_run, STRONG_CONTEXT)
+    live_state = DemoState(
+        question=q_run,
+        weak_sql=state.weak_sql,
+        strong_sql=run_sql,
+        validation=validate_sql(run_sql),
+    )
     if st.button("▶ Uruchom asystenta AI", type="primary", use_container_width=False):
-        run_agent(state)
+        run_agent(live_state)
     else:
-        st.caption("Najważniejszy moment prezentacji.")
+        st.caption("Najważniejszy moment prezentacji — pipeline użyje pytania z pola po prawej.")
 
 
 def scene_guardrails(state: DemoState) -> None:
