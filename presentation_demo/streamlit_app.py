@@ -1025,6 +1025,8 @@ def run_agent(state: DemoState) -> None:
         if not state.validation.is_valid:
             status.update(label="Zapytanie zatrzymane.", state="error")
             st.error("Wynik nie powstał — sprawdzenie wykryło ryzyko.")
+            render_section_title("Wygenerowane SQL (zatrzymane przed hurtownią)")
+            st.code(state.strong_sql, language="sql")
             render_validation(state.validation)
             return
 
@@ -1033,6 +1035,12 @@ def run_agent(state: DemoState) -> None:
         result = execute_mock_query(state.strong_sql)
         insight = summarize_result(result)
         status.update(label="Gotowe.", state="complete")
+
+    render_section_title("Wygenerowane SQL (mock LLM)")
+    st.code(state.strong_sql, language="sql")
+    render_section_title("Walidacja przed hurtownią")
+    render_validation(state.validation)
+    st.markdown('<div style="height: 0.45rem;"></div>', unsafe_allow_html=True)
 
     left, right = st.columns([1.05, 1.95], vertical_alignment="top")
     with left:
@@ -1300,15 +1308,12 @@ def scene_live_demo(state: DemoState) -> None:
     render_eyebrow("Demo na żywo")
     render_medium_title("Zobacz, jak Python prowadzi AI krok po kroku.")
     render_subtitle(
-        "Klikamy „Uruchom” i Python sam przeprowadza pytanie przez wszystkie etapy. "
-        "Każdy etap jest widoczny — nic się nie dzieje w czarnej skrzynce."
+        "Wpisz pytanie po polsku i uruchom agenta. Analiza — mock LLM, SQL, walidacja, zapytanie do hurtowni — "
+        "dzieje się dopiero po kliknięciu, tak jak w rzeczywistym pipeline."
     )
 
     if "live_demo_question" not in st.session_state:
         st.session_state.live_demo_question = DEFAULT_QUESTION
-    user_question = st.session_state.live_demo_question
-    live_strong_sql = mock_llm_generate_sql(user_question, STRONG_CONTEXT)
-    live_validation = validate_sql(live_strong_sql)
 
     left, right = st.columns([1, 1.35], vertical_alignment="top")
     with left:
@@ -1324,35 +1329,36 @@ def scene_live_demo(state: DemoState) -> None:
             ]
         )
     with right:
-        render_section_title("Zapytanie, które wygenerowało AI")
-        st.code(live_strong_sql, language="sql")
-        render_validation(live_validation)
-        st.markdown('<div style="height: 0.55rem;"></div>', unsafe_allow_html=True)
-        render_section_title("Pytanie od użytkownika")
-        st.caption(
-            "Edytuj poniżej — podgląd SQL i walidacji odświeżą się po zmianie treści; "
-            "„Uruchom asystenta AI” użyje tego pytania w całym pipeline (mock LLM, mocny kontekst)."
-        )
-        st.text_area(
-            "Pytanie biznesowe",
-            key="live_demo_question",
-            height=110,
-            label_visibility="collapsed",
+        render_section_title("Zanim uruchomisz agenta")
+        st.info(
+            "Wygenerowane SQL, wynik walidacji i tabela z bazy pojawią się **poniżej** dopiero po uruchomieniu — "
+            "najpierw zobaczysz animowany status, potem pełny wynik (mock LLM, **mocny** kontekst metadanych)."
         )
 
-    st.markdown('<div style="height: 0.45rem;"></div>', unsafe_allow_html=True)
-    q_run = st.session_state.live_demo_question
-    run_sql = mock_llm_generate_sql(q_run, STRONG_CONTEXT)
-    live_state = DemoState(
-        question=q_run,
-        weak_sql=state.weak_sql,
-        strong_sql=run_sql,
-        validation=validate_sql(run_sql),
+    st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
+    render_section_title("Pytanie od użytkownika")
+    st.text_area(
+        "Pytanie biznesowe",
+        key="live_demo_question",
+        height=110,
+        label_visibility="collapsed",
     )
+
     if st.button("▶ Uruchom asystenta AI", type="primary", use_container_width=False):
+        q = st.session_state.live_demo_question
+        run_sql = mock_llm_generate_sql(q, STRONG_CONTEXT)
+        live_state = DemoState(
+            question=q,
+            weak_sql=state.weak_sql,
+            strong_sql=run_sql,
+            validation=validate_sql(run_sql),
+        )
         run_agent(live_state)
-    else:
-        st.caption("Najważniejszy moment prezentacji — pipeline użyje pytania z pola po prawej.")
+
+    st.caption(
+        "Edytuj pytanie w polu powyżej — dopiero **Uruchom asystenta AI** uruchamia mock LLM, "
+        "buduje pełny prompt (mocny kontekst), pokazuje SQL, walidację i ewentualny wynik z hurtowni."
+    )
 
 
 def scene_guardrails(state: DemoState) -> None:
