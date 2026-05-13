@@ -1307,10 +1307,6 @@ def scene_metadata(state: DemoState) -> None:
 def scene_live_demo(state: DemoState) -> None:
     render_eyebrow("Demo na żywo")
     render_medium_title("Zobacz, jak Python prowadzi AI krok po kroku.")
-    render_subtitle(
-        "Wpisz pytanie po polsku i uruchom agenta. Najpierw animowany status, potem SQL, walidacja i wynik z mock hurtowni — "
-        "wszystko dopiero po kliknięciu, tak jak w rzeczywistym pipeline."
-    )
 
     if "live_demo_question" not in st.session_state:
         st.session_state.live_demo_question = DEFAULT_QUESTION
