@@ -345,6 +345,34 @@ st.markdown(
             margin-bottom: 1.4rem;
         }
 
+        .hero-meta {
+            margin-top: 1.15rem;
+            padding-top: 1.1rem;
+            border-top: 1px solid var(--line);
+            font-size: 0.98rem;
+            line-height: 1.55;
+            color: var(--muted);
+            max-width: 940px;
+        }
+
+        .hero-meta a.hero-repo-link {
+            color: var(--accent-strong);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(168, 192, 255, 0.45);
+        }
+
+        .hero-meta a.hero-repo-link:hover {
+            color: #FFFFFF;
+            border-bottom-color: var(--accent-strong);
+        }
+
+        .hero-author {
+            margin-top: 0.55rem;
+            font-size: 0.92rem;
+            color: var(--soft);
+        }
+
         .card, .card-strong {
             border: 1px solid var(--line);
             border-radius: 18px;
@@ -613,6 +641,18 @@ st.markdown(
             color: var(--soft);
             font-size: 0.82rem;
             text-align: center;
+            line-height: 1.55;
+        }
+
+        .footer-note a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(134, 168, 255, 0.35);
+        }
+
+        .footer-note a:hover {
+            color: var(--accent-strong);
+            border-bottom-color: var(--accent-strong);
         }
     </style>
     """,
@@ -1044,6 +1084,12 @@ def scene_scale(_: DemoState) -> None:
                 Python i AI sprawiają, że jedna osoba potrafi dziś zaprototypować to,
                 co kiedyś robiły duże zespoły. Excel nie znika — ale pojawia się obok niego nowe narzędzie.
             </div>
+            <div class="hero-meta">
+                Cała ta prezentacja w przeglądarce — interfejs, logika i demo — jest napisana w Pythonie
+                (Streamlit). Kod źródłowy i instrukcje uruchomienia:
+                <a class="hero-repo-link" href="https://github.com/Smalou/python-analiza-danych" target="_blank" rel="noopener noreferrer">github.com/Smalou/python-analiza-danych</a>.
+                <div class="hero-author">Autorka materiału: Sylwia Malinowska.</div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1431,7 +1477,12 @@ current_scene.render(state)
 st.markdown(
     '<div class="footer-note">'
     "Demo prezentacyjne · mock dane, mock AI · "
-    "core: Python jako warstwa integracyjna między biznesem, danymi i AI"
+    "Python jako warstwa integracyjna między biznesem, danymi i AI · "
+    "interfejs i logika w Streamlicie (Python).<br>"
+    '<a href="https://github.com/Smalou/python-analiza-danych" target="_blank" rel="noopener noreferrer">'
+    "Repozytorium na GitHubie"
+    "</a>"
+    " · Autorka materiałów: Sylwia Malinowska."
     "</div>",
     unsafe_allow_html=True,
 )

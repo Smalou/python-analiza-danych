@@ -9,6 +9,12 @@ To demo **nie jest** produkcyjnym agentem. To slajdowa, lokalnie uruchamialna
 wersja prawdziwego pipeline'u: pytanie biznesowe → metadane → LLM → SQL →
 walidacja → hurtownia (mock) → wynik → logi.
 
+Cała aplikacja prezentacyjna w przeglądarce (Streamlit) — interfejs, logika i sceny demo — jest napisana w Pythonie.
+
+**Repozytorium:** [https://github.com/Smalou/python-analiza-danych](https://github.com/Smalou/python-analiza-danych)
+
+**Autorka materiałów:** Sylwia Malinowska
+
 ---
 
 ## Jak uruchomić
