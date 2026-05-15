@@ -1287,7 +1287,7 @@ def scene_ambiguity(_: DemoState) -> None:
 
     st.markdown('<div style="height: 0.6rem;"></div>', unsafe_allow_html=True)
     st.warning(
-        f"**Trzy zwycięzcy, ta sama firma:** {top_rev['customer_name']} (przychód), "
+        f"**Trzej zwycięzcy, ta sama firma:** {top_rev['customer_name']} (przychód), "
         f"{top_prof['customer_name']} (zysk), {top_marg['customer_name']} (marża %). "
         "Bez metadanych model nie analizuje finansów. On zgaduje finanse."
     )
