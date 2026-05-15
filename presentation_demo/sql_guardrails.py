@@ -164,10 +164,10 @@ def format_validation_report(result: ValidationResult) -> str:
 if __name__ == "__main__":
     good_sql = (
         "SELECT branch, AVG(productivity_score) "
-        "FROM core.branch_productivity_fact "
+        "FROM core.branch_profitability_fact "
         "WHERE month >= '2024-01' GROUP BY branch LIMIT 100;"
     )
-    bad_sql = "SELECT * FROM core.branch_productivity_fact; DROP TABLE core.users;"
+    bad_sql = "SELECT * FROM core.branch_profitability_fact; DROP TABLE core.users;"
 
     print("Dobre zapytanie:")
     print(format_validation_report(validate_sql(good_sql)))

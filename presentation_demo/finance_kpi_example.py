@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from .mock_warehouse import get_branch_productivity_data
+from .mock_warehouse import get_branch_profitability_data
 
 
 def naive_margin(df: pd.DataFrame) -> pd.Series:
@@ -41,7 +41,7 @@ def gross_margin_percentage(df: pd.DataFrame) -> pd.Series:
 
 def compare_margins() -> pd.DataFrame:
     """Porownuje obie definicje per oddzial - pokazuje rozjazd."""
-    df = get_branch_productivity_data()
+    df = get_branch_profitability_data()
     agg = (
         df.groupby("branch", as_index=False)
         .agg(revenue=("revenue", "sum"), cost=("cost", "sum"))

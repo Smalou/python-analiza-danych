@@ -60,7 +60,7 @@ class MetadataContext:
 
 WEAK_CONTEXT = MetadataContext(
     table_descriptions={
-        "core.branch_productivity_fact": "tabela z danymi oddzialow",
+        "core.branch_profitability_fact": "tabela z danymi oddzialow",
     },
 )
 
@@ -89,7 +89,7 @@ STRONG_CONTEXT = MetadataContext(
         ),
     },
     table_descriptions={
-        "core.branch_productivity_fact": (
+        "core.branch_profitability_fact": (
             "Miesieczne fakty oddzialow: przychod, koszt, produktywnosc operacyjna, "
             "nadgodziny. Ziarno: branch x month. Aktualizowana 5. dnia roboczego miesiaca."
         ),
@@ -109,7 +109,7 @@ STRONG_CONTEXT = MetadataContext(
             "WITH yearly AS (\n"
             "  SELECT branch, EXTRACT(YEAR FROM TO_DATE(month, 'yyyy-MM')) AS y,\n"
             "         SUM(revenue) AS rev, SUM(cost) AS cost\n"
-            "  FROM core.branch_productivity_fact\n"
+            "  FROM core.branch_profitability_fact\n"
             "  GROUP BY 1, 2\n"
             ")\n"
             "SELECT branch,\n"
@@ -137,7 +137,7 @@ def naive_sql_from_weak_context(question: str) -> str:
     _ = question
     return (
         "SELECT *\n"
-        "FROM core.branch_productivity_fact\n"
+        "FROM core.branch_profitability_fact\n"
         "ORDER BY revenue ASC;"
     )
 
@@ -151,7 +151,7 @@ def grounded_sql_from_strong_context(question: str) -> str:
         "         EXTRACT(YEAR FROM TO_DATE(month, 'yyyy-MM')) AS year_over_year,\n"
         "         SUM(revenue) AS revenue_sum,\n"
         "         SUM(cost) AS cost_sum\n"
-        "  FROM core.branch_productivity_fact\n"
+        "  FROM core.branch_profitability_fact\n"
         "  WHERE month >= '2024-01'\n"
         "  GROUP BY 1, 2\n"
         ")\n"

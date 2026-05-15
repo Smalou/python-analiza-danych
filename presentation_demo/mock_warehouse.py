@@ -18,10 +18,10 @@ import pandas as pd
 
 
 # ---------------------------------------------------------------------------
-# Dane źródłowe - symulacja tabeli `core.branch_productivity_fact`
+# Dane źródłowe - symulacja tabeli `core.branch_profitability_fact`
 # ---------------------------------------------------------------------------
 
-_BRANCH_PRODUCTIVITY_ROWS: list[dict[str, object]] = [
+_BRANCH_PROFITABILITY_ROWS: list[dict[str, object]] = [
     # Branch A - region North - lekki spadek r/r
     {"branch": "A", "region": "North", "month": "2024-01", "revenue": 120_000, "cost": 80_000, "productivity_score": 0.82, "overtime_hours": 110},
     {"branch": "A", "region": "North", "month": "2024-02", "revenue": 118_000, "cost": 82_000, "productivity_score": 0.80, "overtime_hours": 130},
@@ -54,13 +54,13 @@ _BRANCH_PRODUCTIVITY_ROWS: list[dict[str, object]] = [
 ]
 
 
-def get_branch_productivity_data() -> pd.DataFrame:
-    """Zwraca surowy DataFrame z faktami produktywnosci oddzialow.
+def get_branch_profitability_data() -> pd.DataFrame:
+    """Zwraca surowy DataFrame z faktami oddzialow (przychod, koszt, miary operacyjne).
 
     To prezentacyjny odpowiednik zapytania:
-        SELECT * FROM core.branch_productivity_fact
+        SELECT * FROM core.branch_profitability_fact
     """
-    df = pd.DataFrame(_BRANCH_PRODUCTIVITY_ROWS)
+    df = pd.DataFrame(_BRANCH_PROFITABILITY_ROWS)
     df["year"] = df["month"].str.slice(0, 4).astype(int)
     return df
 
@@ -88,7 +88,7 @@ def execute_mock_query(sql: str) -> QueryResult:
     typowe dla pytan biznesowych z demo i zwraca odpowiednie agregaty.
     """
     sql_lower = sql.lower()
-    df = get_branch_productivity_data()
+    df = get_branch_profitability_data()
 
     if "year_over_year" in sql_lower or "yoy" in sql_lower or "spadek" in sql_lower:
         return _branch_yoy_drop(df)
@@ -147,6 +147,6 @@ def _branch_yoy_drop(df: pd.DataFrame) -> QueryResult:
 
 
 if __name__ == "__main__":
-    print(get_branch_productivity_data().head())
+    print(get_branch_profitability_data().head())
     print()
     print(execute_mock_query("SELECT branch, yoy ...").rows)
