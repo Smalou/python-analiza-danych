@@ -114,7 +114,7 @@ Pytanie biznesowe ramujące całą prezentację:
 
 | # | Tytuł sceny | Klucz w `SCENES` | Co pokazuje |
 |---|---|---|---|
-| 1 | Rola analityka się zmienia | `hook` | Hook: 300 → 1 osoba, pytanie ramujące. |
+| 1 | AI odpowiada szybko. Ale czy właściwie? | `hook` | Prowokacyjny hook + teza prezentacji. |
 | 2 | Python łączy biznes z AI | `python_pipeline` | Pytanie + 6-krokowy pipeline + 3 trudności pod spodem. |
 | 3 | **To samo pytanie. Trzy możliwe odpowiedzi.** | `ambiguity` | Ranking po przychodzie/zysku/marży — trzech różnych zwycięzców. |
 | 4 | **Metadane zmieniają wszystko** | `metadata_resolution` | Definicje słownika firmy + SQL + jednoznaczna odpowiedź. |
@@ -127,7 +127,7 @@ Pytanie biznesowe ramujące całą prezentację:
 
 | Scena | Zdanie |
 |---|---|
-| 1. Hook | „300 osób kiedyś, 1 dziś. Czy AI zastępuje, czy wzmacnia?" |
+| 1. Hook | „AI odpowiada szybko. Ale czy odpowiada na właściwe pytanie?" |
 | 2. Python pipeline | „Użytkownik pisze pytanie po polsku — Python prowadzi wszystko pomiędzy." |
 | 3. Trzy odpowiedzi | „AI nie wie, co znaczy 'rentowny', dopóki organizacja tego nie zdefiniuje." |
 | 4. Metadane | „Dobre metadane zamieniają niejednoznaczny prompt w kontrolowane pytanie analityczne." |

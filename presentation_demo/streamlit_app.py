@@ -1141,11 +1141,11 @@ def scene_hook(_: DemoState) -> None:
     st.markdown(
         """
         <div class="hero-panel">
-            <div class="eyebrow">Wprowadzenie</div>
-            <div class="big-title">Rola analityka zmienia się szybciej niż kiedykolwiek.</div>
+            <div class="eyebrow">Python w erze AI</div>
+            <div class="big-title">AI odpowiada szybko. Ale czy odpowiada na właściwe pytanie?</div>
             <div class="subtitle">
-                To, co kiedyś robił duży zespół, dziś jedna osoba może zaprototypować
-                w Pythonie. Excel zostaje — obok pojawia się nowe narzędzie.
+                Wiarygodnie brzmiąca odpowiedź od AI może być technicznie poprawna
+                i biznesowo błędna jednocześnie. Ta prezentacja pokazuje, co tworzy różnicę.
             </div>
             <div class="hero-meta">
                 Ta prezentacja w przeglądarce — interfejs, logika i demo — jest w całości napisana
@@ -1158,26 +1158,8 @@ def scene_hook(_: DemoState) -> None:
         unsafe_allow_html=True,
     )
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        render_big_number(
-            "300",
-            "tyle osób w dużej firmie utrzymywało dawniej raporty, integracje i dashboardy.",
-        )
-    with c2:
-        render_big_number(
-            "1",
-            "tyle osób wystarczy dziś, żeby zbudować działający prototyp takiego systemu.",
-            accent=True,
-        )
-    with c3:
-        render_big_number(
-            "7 min",
-            "tyle zajmie pokazanie, jak Python łączy biznes, dane i AI w jeden przepływ.",
-        )
-
     render_statement(
-        "Pytanie tej prezentacji: co decyduje, czy Python + AI zastępują analityka — czy go wzmacniają?"
+        "Technicznie poprawny kod może nadal dawać błędną odpowiedź biznesową."
     )
 
 
@@ -1546,7 +1528,7 @@ def scene_conclusion(_: DemoState) -> None:
 
 
 SCENES: list[Scene] = [
-    Scene("hook", "Rola analityka się zmienia", scene_hook),
+    Scene("hook", "AI odpowiada szybko. Ale czy właściwie?", scene_hook),
     Scene("python_pipeline", "Python łączy biznes z AI", scene_python_pipeline),
     Scene("ambiguity", "To samo pytanie. Trzy możliwe odpowiedzi.", scene_ambiguity),
     Scene("metadata_resolution", "Metadane zmieniają wszystko", scene_metadata_resolution),
