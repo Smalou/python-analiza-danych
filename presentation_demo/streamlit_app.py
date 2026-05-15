@@ -1452,7 +1452,8 @@ def scene_trust(state: DemoState) -> None:
 
     render_statement(
         "W realnym świecie nie pytamy „czy AI dało odpowiedź”. Pytamy: ile razy odpowiedź "
-        "była poprawna, użyteczna i bezpieczna — i mierzymy to w pandas."
+        "była poprawna, użyteczna i bezpieczna — a sam pomiar to audyt jakości AI, "
+        "ta sama dyscyplina, co audyt finansowy."
     )
 
 
