@@ -1362,10 +1362,6 @@ def scene_metadata_resolution(state: DemoState) -> None:
 def scene_live_demo(state: DemoState) -> None:
     render_eyebrow("Demo na żywo")
     render_medium_title("Cały pipeline z poprzednich slajdów — w jednym kliknięciu.")
-    render_subtitle(
-        "Wpisz dowolne pytanie. Patrzcie na st.status — to pięć kroków, "
-        "które przed chwilą omawialiśmy, tylko że tym razem na żywo."
-    )
 
     if "live_demo_question" not in st.session_state:
         st.session_state.live_demo_question = DEFAULT_QUESTION
