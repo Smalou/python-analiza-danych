@@ -1216,8 +1216,8 @@ def scene_metadata(state: DemoState) -> None:
     render_eyebrow("Kontekst biznesowy = jakość AI")
     render_medium_title("To samo pytanie. Ten sam model AI. Inny kontekst — inny wynik.")
     render_subtitle(
-        "„Kontekst biznesowy” to definicje KPI, opisy tabel i słownik firmy. "
-        "Bez nich nawet najlepszy model AI tylko zgaduje."
+        'Pytanie mówi „wyniki". Bez słownika firmy AI musi zgadywać, '
+        'czy chodzi o przychód, marżę, czy coś jeszcze innego.'
     )
 
     c1, c2 = st.columns(2, vertical_alignment="top")
@@ -1228,9 +1228,9 @@ def scene_metadata(state: DemoState) -> None:
         st.code(state.weak_sql, language="sql")
         render_insight_list(
             [
-                (False, "Brak filtrów czasu — pobiera wszystko."),
-                (False, "Nieznane są definicje, więc AI zgaduje strukturę."),
-                (False, "Wynik raczej do wyrzucenia."),
+                (False, 'AI zgadło: „wynik" = przychód. Sortuje po `revenue`.'),
+                (False, "Brak filtra czasu — porównania r/r nie ma."),
+                (False, "Brak agregacji — wynik to surowa tabela do wyrzucenia."),
             ]
         )
     with c2:
@@ -1240,23 +1240,24 @@ def scene_metadata(state: DemoState) -> None:
         st.code(state.strong_sql, language="sql")
         render_insight_list(
             [
-                (True, "Filtruje po dacie — porównanie rok do roku ma sens."),
-                (True, "Używa poprawnych definicji KPI."),
-                (True, "Wynik gotowy do prezentacji."),
+                (True, 'Słownik mówi: „wynik" = marża brutto. AI liczy marżę.'),
+                (True, "Filtruje po dacie — porównanie 2024 vs 2025 ma sens."),
+                (True, "Zwraca YoY w punktach procentowych — gotowe pod raport."),
             ]
         )
 
     render_statement(
-        "Większy model nie naprawi złych definicji. Słownik firmy jest ważniejszy niż siła modelu."
+        'Większy model nie naprawi złych definicji. Słownik firmy — '
+        '„wynik = marża brutto" — jest ważniejszy niż siła modelu.'
     )
 
 
 def scene_finance_kpi(_: DemoState) -> None:
-    render_eyebrow("Kontekst to wciąż decyzja człowieka")
-    render_medium_title("Liczbę policzy AI. Ekspert decyduje, czy to dobra liczba.")
+    render_eyebrow("Definicja KPI to wciąż decyzja człowieka")
+    render_medium_title("Marżę policzy AI. Ekspert decyduje, czy liczy ją dobrze.")
     render_subtitle(
-        "Kontekst biznesowy z poprzedniego slajdu to definicje KPI. A skąd biorą się definicje? "
-        "AI nie wie samo z siebie, że marża brutto liczy się od przychodu, a nie od kosztu."
+        'Słownik z poprzedniego slajdu mówi: „wynik" = marża brutto. '
+        'Ale samej marży można policzyć dwoma wzorami — i AI nie wie, który jest poprawny.'
     )
 
     margins_df = load_margin_data().rename(
