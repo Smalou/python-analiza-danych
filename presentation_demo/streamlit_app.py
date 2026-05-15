@@ -20,9 +20,17 @@ from presentation_demo.demo_agent_flow import (  # noqa: E402
     mock_llm_generate_sql,
     summarize_result,
 )
-from presentation_demo.finance_kpi_example import compare_margins  # noqa: E402
+from presentation_demo.finance_kpi_example import (  # noqa: E402
+    top_by_gross_margin,
+    top_by_gross_profit,
+    top_by_revenue,
+)
 from presentation_demo.metadata_context import STRONG_CONTEXT, WEAK_CONTEXT  # noqa: E402
-from presentation_demo.mock_warehouse import execute_mock_query  # noqa: E402
+from presentation_demo.mock_warehouse import (  # noqa: E402
+    LAST_CLOSED_QUARTER,
+    create_customer_profitability_data,
+    execute_mock_query,
+)
 from presentation_demo.observability_demo import compute_summary, get_agent_logs  # noqa: E402
 from presentation_demo.sql_guardrails import (  # noqa: E402
     Severity,
@@ -31,7 +39,7 @@ from presentation_demo.sql_guardrails import (  # noqa: E402
 )
 
 
-DEFAULT_QUESTION = "Które oddziały mają największy spadek wyników rok do roku?"
+DEFAULT_QUESTION = "Którzy klienci byli najbardziej rentowni w ostatnim kwartale?"
 
 
 # -----------------------------------------------------------------------------
@@ -872,8 +880,8 @@ def load_observability_data() -> tuple[pd.DataFrame, object]:
 
 
 @st.cache_data(show_spinner=False)
-def load_margin_data() -> pd.DataFrame:
-    return compare_margins()
+def load_customer_data() -> pd.DataFrame:
+    return create_customer_profitability_data()
 
 
 def build_demo_state() -> DemoState:
@@ -1188,9 +1196,9 @@ def scene_python_pipeline(state: DemoState) -> None:
         render_section_title("Trudność zaczyna się pod spodem")
         render_insight_list(
             [
-                (False, "Co dokładnie znaczy „wynik” — przychód, marża, EBITDA?"),
-                (False, "Jakiego okresu dotyczy „rok do roku”?"),
-                (False, "Jak liczymy „największy spadek” — wartością czy procentem?"),
+                (False, 'Co znaczy „rentowny" — najwyższy przychód, najwyższy zysk, czy najwyższa marża %?'),
+                (False, 'Kto to „klient" — firma fakturowana czy każdy oddział?'),
+                (False, 'Jakiego okresu dotyczy „ostatni kwartał" — bieżący, ostatni zamknięty?'),
             ]
         )
     with right:
@@ -1212,88 +1220,142 @@ def scene_python_pipeline(state: DemoState) -> None:
     )
 
 
-def scene_metadata(state: DemoState) -> None:
-    render_eyebrow("Kontekst biznesowy = jakość AI")
-    render_medium_title("To samo pytanie. Ten sam model AI. Inny kontekst — inny wynik.")
+def scene_ambiguity(_: DemoState) -> None:
+    """Trzy interpretacje 'rentownego klienta' — każda daje innego zwycięzcę."""
+    render_eyebrow("To samo pytanie. Trzy możliwe odpowiedzi")
+    render_medium_title('AI nie wie, co znaczy „rentowny", dopóki organizacja tego nie zdefiniuje.')
     render_subtitle(
-        'Pytanie mówi „wyniki". Bez słownika firmy AI musi zgadywać, '
-        'czy chodzi o przychód, marżę, czy coś jeszcze innego.'
+        'Bez słownika firmy pytanie ma trzy technicznie poprawne odpowiedzi — '
+        'i każda wskazuje innego klienta jako „najlepszego".'
     )
 
-    c1, c2 = st.columns(2, vertical_alignment="top")
+    df = load_customer_data()
+    revenue_df = top_by_revenue(df)
+    profit_df = top_by_gross_profit(df)
+    margin_df = top_by_gross_margin(df)
+
+    top_rev = revenue_df.iloc[0]
+    top_prof = profit_df.iloc[0]
+    top_marg = margin_df.iloc[0]
+
+    c1, c2, c3 = st.columns(3, vertical_alignment="top")
+
     with c1:
-        render_section_title("Bez kontekstu")
-        st.code(WEAK_CONTEXT.to_prompt_block(), language="markdown")
-        render_section_title("Wygenerowane zapytanie SQL")
-        st.code(state.weak_sql, language="sql")
-        render_insight_list(
-            [
-                (False, 'AI zgadło: „wynik" = przychód. Sortuje po `revenue`.'),
-                (False, "Brak filtra czasu — porównania r/r nie ma."),
-                (False, "Brak agregacji — wynik to surowa tabela do wyrzucenia."),
-            ]
+        render_section_title("1. Wg przychodu netto")
+        st.metric("Top klient", top_rev["customer_name"], f'{top_rev["net_revenue"]/1e6:.2f} M PLN')
+        st.dataframe(
+            revenue_df.rename(columns={
+                "customer_name": "Klient",
+                "net_revenue": "Przychód",
+                "gross_profit": "Zysk",
+                "gross_margin_pct": "Marża %",
+            }).style.format({"Przychód": "{:,.0f}", "Zysk": "{:,.0f}", "Marża %": "{:.1f}"}),
+            hide_index=True,
+            width="stretch",
         )
+        st.caption('Interpretacja: „rentowny" = ma duży obrót.')
+
     with c2:
-        render_section_title("Z kontekstem biznesowym")
-        st.code(STRONG_CONTEXT.to_prompt_block(), language="markdown")
+        render_section_title("2. Wg zysku brutto")
+        st.metric("Top klient", top_prof["customer_name"], f'{top_prof["gross_profit"]/1e3:.0f} k PLN')
+        st.dataframe(
+            profit_df.rename(columns={
+                "customer_name": "Klient",
+                "net_revenue": "Przychód",
+                "gross_profit": "Zysk",
+                "gross_margin_pct": "Marża %",
+            }).style.format({"Przychód": "{:,.0f}", "Zysk": "{:,.0f}", "Marża %": "{:.1f}"}),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption('Interpretacja: „rentowny" = zostawia najwięcej zysku w PLN.')
+
+    with c3:
+        render_section_title("3. Wg marży brutto %")
+        st.metric("Top klient", top_marg["customer_name"], f'{top_marg["gross_margin_pct"]:.0f}%')
+        st.dataframe(
+            margin_df.rename(columns={
+                "customer_name": "Klient",
+                "net_revenue": "Przychód",
+                "gross_profit": "Zysk",
+                "gross_margin_pct": "Marża %",
+            }).style.format({"Przychód": "{:,.0f}", "Zysk": "{:,.0f}", "Marża %": "{:.1f}"}),
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption('Interpretacja: „rentowny" = najwyższy procent marży.')
+
+    st.markdown('<div style="height: 0.6rem;"></div>', unsafe_allow_html=True)
+    st.warning(
+        f"**Trzy zwycięzcy, ta sama firma:** {top_rev['customer_name']} (przychód), "
+        f"{top_prof['customer_name']} (zysk), {top_marg['customer_name']} (marża %). "
+        "Bez metadanych model nie analizuje finansów. On zgaduje finanse."
+    )
+
+    render_statement(
+        "Technicznie poprawny kod może nadal dawać błędną odpowiedź biznesową."
+    )
+
+
+def scene_metadata_resolution(state: DemoState) -> None:
+    """Definicje słownika firmy zamieniają trzy odpowiedzi w jedną poprawną."""
+    render_eyebrow("Metadane zmieniają wszystko")
+    render_medium_title("Niejednoznaczny prompt → kontrolowane pytanie analityczne.")
+    render_subtitle(
+        'Słownik firmy ustala, co znaczy „rentowny", „klient" i „kwartał". '
+        'Te trzy definicje zamieniają niejednoznaczność w jedną odpowiedź.'
+    )
+
+    left, right = st.columns([1, 1.15], vertical_alignment="top")
+
+    with left:
+        render_section_title("Co mówi słownik firmy")
+        st.markdown(
+            "- **Klient** — podmiot fakturowany w danym kwartale\n"
+            "- **Rentowność** — ranking po **`gross_profit`** "
+            "(marża % to miara wspierająca, nie podstawowa)\n"
+            "- **Ostatni kwartał** — ostatni w pełni zamknięty kwartał kalendarzowy "
+            f"(dziś: **{LAST_CLOSED_QUARTER}**)\n"
+            "- **Przychód** — `net_revenue` (bez VAT, po korektach faktur)\n"
+            "- **Koszt** — `direct_service_cost` (bez kosztów ogólnozakładowych)\n"
+            "- **Mali klienci** — poniżej 100 tys. PLN wykluczeni z rankingu marżowego, "
+            "by uniknąć mylących wyników procentowych"
+        )
+
         render_section_title("Wygenerowane zapytanie SQL")
         st.code(state.strong_sql, language="sql")
-        render_insight_list(
-            [
-                (True, 'Słownik mówi: „wynik" = marża brutto. AI liczy marżę.'),
-                (True, "Filtruje po dacie — porównanie 2024 vs 2025 ma sens."),
-                (True, "Zwraca YoY w punktach procentowych — gotowe pod raport."),
-            ]
-        )
 
-    render_statement(
-        'Większy model nie naprawi złych definicji. Słownik firmy — '
-        '„wynik = marża brutto" — jest ważniejszy niż siła modelu.'
-    )
-
-
-def scene_finance_kpi(_: DemoState) -> None:
-    render_eyebrow("Definicja KPI to wciąż decyzja człowieka")
-    render_medium_title("Marżę policzy AI. Ekspert decyduje, czy liczy ją dobrze.")
-    render_subtitle(
-        'Słownik z poprzedniego slajdu mówi: „wynik" = marża brutto. '
-        'Ale samej marży można policzyć dwoma wzorami — i AI nie wie, który jest poprawny.'
-    )
-
-    margins_df = load_margin_data().rename(
-        columns={
-            "branch": "Oddział",
-            "revenue": "Przychód",
-            "cost": "Koszt",
-            "markup_naive_pct": "Marża wg błędnego wzoru (%)",
-            "gross_margin_pct_correct": "Marża brutto — poprawny wzór (%)",
-            "delta_pp": "Różnica (pp)",
-        }
-    )
-
-    left, right = st.columns([1.35, 1], vertical_alignment="top")
-    with left:
-        render_section_title("Ta sama firma. Dwa różne wzory. Dwa różne wnioski.")
-        st.dataframe(margins_df, width="stretch", hide_index=True)
-        st.info(
-            "**Różnica wynika z mianownika:**\n\n"
-            "• **markup** `=(revenue − cost) / cost` → **zawyża wynik**\n\n"
-            "• **gross margin** `=(revenue − cost) / revenue` → **standard księgowy**\n\n"
-            "AI obliczy oba wzory poprawnie. Ekspert finansowy decyduje, "
-            "która liczba trafia na slajd zarządu."
-        )
     with right:
-        render_section_title("Wykres różnicy")
-        chart_df = margins_df[
-            ["Oddział", "Marża wg błędnego wzoru (%)", "Marża brutto — poprawny wzór (%)"]
-        ]
-        st.bar_chart(chart_df.set_index("Oddział"), height=335)
-        st.caption(
-            "Błędny wzór systematycznie zawyża wynik. Dla zarządu firmy — to zupełnie inna interpretacja."
+        render_section_title("Jednoznaczna odpowiedź")
+
+        result = execute_mock_query(state.strong_sql)
+        top = result.rows.iloc[0]
+
+        st.success(
+            f"**Najbardziej rentowny klient w {LAST_CLOSED_QUARTER}: "
+            f"{top['customer_name']}**"
+        )
+
+        k1, k2, k3 = st.columns(3)
+        k1.metric("Zysk brutto", f"{top['gross_profit']/1e3:,.0f} k PLN")
+        k2.metric("Przychód netto", f"{top['net_revenue']/1e3:,.0f} k PLN")
+        k3.metric("Marża brutto", f"{top['gross_margin_pct']:.1f}%")
+
+        st.markdown('<div style="height: 0.4rem;"></div>', unsafe_allow_html=True)
+        render_section_title("Pełny ranking po zysku brutto")
+        st.dataframe(
+            result.rows.rename(columns={
+                "customer_name": "Klient",
+                "net_revenue": "Przychód",
+                "gross_profit": "Zysk brutto",
+                "gross_margin_pct": "Marża %",
+            }).style.format({"Przychód": "{:,.0f}", "Zysk brutto": "{:,.0f}", "Marża %": "{:.1f}"}),
+            hide_index=True,
+            width="stretch",
         )
 
     render_statement(
-        "Definicje KPI nie są technologią. Są decyzją biznesową — i wciąż należą do człowieka."
+        "Dobre metadane zamieniają niejednoznaczny prompt w kontrolowane pytanie analityczne."
     )
 
 
@@ -1454,10 +1516,11 @@ def scene_conclusion(_: DemoState) -> None:
         """
         <div class="hero-panel">
             <div class="eyebrow">Podsumowanie</div>
-            <div class="big-title">Python obniża barierę. AI podnosi wagę fundamentów.</div>
+            <div class="big-title">Metadane to nie dokumentacja. To warstwa kontroli.</div>
             <div class="subtitle">
-                Nie po to, by każdy został programistą. Po to, by osoby z wiedzą domenową
-                mogły budować, kontrolować i interpretować coraz bardziej zaawansowane rozwiązania.
+                AI-augmented analytics jest wiarygodne tylko wtedy, gdy AI ma dostęp
+                do jasnych definicji biznesowych. Bez nich generuje wiarygodnie brzmiące,
+                ale biznesowo błędne odpowiedzi.
             </div>
         </div>
         """,
@@ -1467,33 +1530,33 @@ def scene_conclusion(_: DemoState) -> None:
     c1, c2 = st.columns(2)
     with c1:
         render_card(
-            "AI obniża barierę techniczną",
-            "Generowanie SQL, raportów i podsumowań staje się dostępne dla każdego, "
-            "kto potrafi sformułować dobre pytanie.",
+            "Bez metadanych",
+            'AI zgaduje, co znaczy „rentowny", „klient" i „okres". '
+            'Trzy interpretacje, trzy odpowiedzi, brak kontroli.',
         )
     with c2:
         render_card(
-            "Ale rośnie waga fundamentów",
-            "Definicje KPI, kontekst biznesowy, walidacja, pomiar skuteczności — "
-            "i właściwa interpretacja wyniku.",
+            "Z metadanymi",
+            "Słownik firmy zamienia niejednoznaczny prompt w kontrolowane pytanie "
+            "analityczne. Jedna definicja, jedna odpowiedź.",
             strong=True,
         )
 
     render_statement(
-        "Największą przewagą nie będzie samo używanie AI. Będzie nią rozumienie, kiedy AI "
-        "daje odpowiedź, której można zaufać — i umiejętność zbudowania systemu, który to sprawdza."
+        "Największą przewagą nie będzie samo używanie AI. Będzie nią umiejętność zdefiniowania "
+        "metadanych, które robią z modelu narzędzie biznesowe — a nie generator wiarygodnych odpowiedzi."
     )
 
 
 SCENES: list[Scene] = [
     Scene("hook", "Rola analityka się zmienia", scene_hook),
     Scene("python_pipeline", "Python łączy biznes z AI", scene_python_pipeline),
-    Scene("metadata", "Większy model nie naprawi złych definicji", scene_metadata),
-    Scene("finance_kpi", "KPI to wciąż decyzja człowieka", scene_finance_kpi),
+    Scene("ambiguity", "To samo pytanie. Trzy możliwe odpowiedzi.", scene_ambiguity),
+    Scene("metadata_resolution", "Metadane zmieniają wszystko", scene_metadata_resolution),
     Scene("live_demo", "Demo na żywo", scene_live_demo),
     Scene("trust", "Skąd wiemy, że agentowi można ufać", scene_trust),
     Scene("foundations_code", "Słownik, funkcja, if, pandas", scene_foundations_code),
-    Scene("conclusion", "Python + AI = dźwignia", scene_conclusion),
+    Scene("conclusion", "Metadane jako warstwa kontroli", scene_conclusion),
 ]
 
 

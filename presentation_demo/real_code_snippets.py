@@ -313,7 +313,7 @@ vector_store = PGVector(
 )
 
 results = vector_store.similarity_search_with_score(
-    query="produktywnosc oddzialow",
+    query="rentownosc klientow",
     k=5,
     filter={"type": "glossary"},
 )

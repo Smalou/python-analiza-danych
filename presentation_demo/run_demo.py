@@ -7,7 +7,7 @@ Uruchamia kolejno wszystkie sekcje demo:
   4. Walidacja (guardrails)
   5. Wynik analizy (mock warehouse)
   6. Observability (logi w pandas)
-  7. KPI finansowe (marza brutto)
+  7. Rentownosc klientow (trzy interpretacje)
 
 Uruchomienie:
     uv run python presentation_demo/run_demo.py
@@ -34,7 +34,10 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from presentation_demo.demo_agent_flow import render_agent_run, run_agent_flow
-from presentation_demo.finance_kpi_example import compare_margins, explain_difference
+from presentation_demo.finance_kpi_example import (
+    compare_three_interpretations,
+    explain_difference,
+)
 from presentation_demo.metadata_context import STRONG_CONTEXT, WEAK_CONTEXT
 from presentation_demo.observability_demo import compute_summary, format_summary, get_agent_logs
 from presentation_demo.real_code_snippets import ALL_SNIPPETS
@@ -45,7 +48,7 @@ from presentation_demo.sql_guardrails import format_validation_report, validate_
 # Drobne helpery prezentacyjne.
 # ---------------------------------------------------------------------------
 
-BUSINESS_QUESTION = "Ktore oddzialy maja najwiekszy spadek wynikow rok do roku?"
+BUSINESS_QUESTION = "Ktorzy klienci byli najbardziej rentowni w ostatnim kwartale?"
 
 
 def _section(title: str) -> None:
@@ -127,9 +130,16 @@ def section_6_observability() -> None:
 
 
 def section_7_finance_kpi() -> None:
-    _section("7. KPI finansowe - marza brutto")
-    df = compare_margins()
-    print(df.to_string(index=False))
+    _section("7. Rentownosc klientow - trzy interpretacje pytania")
+    rankings = compare_three_interpretations()
+    labels = {
+        "po_przychodzie": "Top wg przychodu netto (interpretacja naiwna)",
+        "po_zysku_brutto": "Top wg zysku brutto (POPRAWNE wg slownika)",
+        "po_marzy_pct": "Top wg marzy %",
+    }
+    for key, label in labels.items():
+        _subsection(label)
+        print(rankings[key].to_string(index=False))
     print()
     print(explain_difference())
 

@@ -1,69 +1,78 @@
-"""Finance KPI - marza brutto, czyli dlaczego definicja biznesowa ma znaczenie.
+"""Customer profitability - trzy interpretacje "najbardziej rentownego klienta".
 
-Klasyczny przyklad z analityki finansowej: ten sam KPI mozna policzyc na
-kilka sposobow, a tylko jeden jest poprawny ksiegowo. AI policzy to, co mu
-kazemy - dlatego ekspert finansowy musi zdefiniowac formule.
+Klasyczny przyklad niejednoznacznosci w analityce finansowej: pytanie "ktorzy
+klienci byli najbardziej rentowni" mozna zinterpretowac na trzy rozne sposoby,
+i kazda z interpretacji da innego zwyciezce.
 
 Kluczowy komunikat:
-AI policzy liczby. Ekspert finansowy definiuje, co znaczy "poprawnie".
+AI nie wie, co znaczy "rentowny", dopoki organizacja tego nie zdefiniuje.
 """
 
 from __future__ import annotations
 
 import pandas as pd
 
-from .mock_warehouse import get_branch_profitability_data
+from .mock_warehouse import create_customer_profitability_data
 
 
-def naive_margin(df: pd.DataFrame) -> pd.Series:
-    """Naiwna, blędna definicja marzy - mylenie marzy brutto z markupem.
-
-    markup = (revenue - cost) / cost
-    Ta wartosc jest zazwyczaj WYZSZA niz prawdziwa marza brutto i wprowadza
-    w blad osoby porownujace sie z benchmarkami branzowymi.
-    """
-    return (df["revenue"] - df["cost"]) / df["cost"] * 100
+_RANKING_COLUMNS = ["customer_name", "net_revenue", "gross_profit", "gross_margin_pct"]
 
 
-def gross_margin_percentage(df: pd.DataFrame) -> pd.Series:
-    """Poprawna definicja marzy brutto.
-
-    gross_margin_percentage = (revenue - cost) / revenue * 100
-
-    Mianownikiem jest revenue, nie cost. Ta definicja jest spojna z RZiS,
-    raportami zarzadczymi i benchmarkami branzowymi.
-    Zabezpieczenie przed dzieleniem przez zero realizujemy w SQL przez NULLIF;
-    tutaj wystarczy assert na danych demo.
-    """
-    assert (df["revenue"] > 0).all(), "revenue musi byc dodatnie"
-    return (df["revenue"] - df["cost"]) / df["revenue"] * 100
-
-
-def compare_margins() -> pd.DataFrame:
-    """Porownuje obie definicje per oddzial - pokazuje rozjazd."""
-    df = get_branch_profitability_data()
-    agg = (
-        df.groupby("branch", as_index=False)
-        .agg(revenue=("revenue", "sum"), cost=("cost", "sum"))
+def top_by_revenue(df: pd.DataFrame | None = None, n: int = 3) -> pd.DataFrame:
+    """Top N klientow wg przychodu netto - typowa "naiwna" interpretacja AI."""
+    df = create_customer_profitability_data() if df is None else df
+    return (
+        df.sort_values("net_revenue", ascending=False)
+        .head(n)
+        .reset_index(drop=True)[_RANKING_COLUMNS]
     )
-    agg["markup_naive_pct"] = naive_margin(agg).round(1)
-    agg["gross_margin_pct_correct"] = gross_margin_percentage(agg).round(1)
-    agg["delta_pp"] = (agg["markup_naive_pct"] - agg["gross_margin_pct_correct"]).round(1)
-    return agg.sort_values("gross_margin_pct_correct", ascending=False).reset_index(drop=True)
+
+
+def top_by_gross_profit(df: pd.DataFrame | None = None, n: int = 3) -> pd.DataFrame:
+    """Top N klientow wg zysku brutto - POPRAWNA interpretacja wg slownika firmy."""
+    df = create_customer_profitability_data() if df is None else df
+    return (
+        df.sort_values("gross_profit", ascending=False)
+        .head(n)
+        .reset_index(drop=True)[_RANKING_COLUMNS]
+    )
+
+
+def top_by_gross_margin(df: pd.DataFrame | None = None, n: int = 3) -> pd.DataFrame:
+    """Top N klientow wg marzy procentowej - mali klienci moga zaburzac ranking."""
+    df = create_customer_profitability_data() if df is None else df
+    return (
+        df.sort_values("gross_margin_pct", ascending=False)
+        .head(n)
+        .reset_index(drop=True)[_RANKING_COLUMNS]
+    )
+
+
+def compare_three_interpretations() -> dict[str, pd.DataFrame]:
+    """Zwraca slownik z trzema rankingami - rdzen sceny "trzy odpowiedzi"."""
+    df = create_customer_profitability_data()
+    return {
+        "po_przychodzie": top_by_revenue(df),
+        "po_zysku_brutto": top_by_gross_profit(df),
+        "po_marzy_pct": top_by_gross_margin(df),
+    }
 
 
 def explain_difference() -> str:
-    """Tekst wyjasniajacy do umieszczenia na slajdzie / w raporcie."""
+    """Tekst pod slajd/terminal - dlaczego trzy interpretacje daja rozne wyniki."""
     return (
-        "Roznica wynika z mianownika:\n"
-        "  - markup       (revenue - cost) / cost     -> zawyza wynik\n"
-        "  - gross_margin (revenue - cost) / revenue  -> standard ksiegowy\n"
-        "AI obliczy oba poprawnie - to ekspert finansowy decyduje, ktora liczba "
-        "trafia na slajd zarzadu."
+        "Trzy interpretacje 'rentownego' daja trzech innych zwyciezcow:\n"
+        "  - wg przychodu      -> klient z najwiekszym obrotem (czesto niska marza)\n"
+        "  - wg zysku brutto   -> klient zostawiajacy najwiecej zysku w PLN  [POPRAWNE]\n"
+        "  - wg marzy %        -> klient z najwyzsza marza % (czesto bardzo maly)\n"
+        "Slownik firmy: 'rentowny' = ranking po gross_profit."
     )
 
 
 if __name__ == "__main__":
-    print(compare_margins().to_string(index=False))
+    rankings = compare_three_interpretations()
+    for label, df in rankings.items():
+        print(f"\n--- Top wg {label} ---")
+        print(df.to_string(index=False))
     print()
     print(explain_difference())

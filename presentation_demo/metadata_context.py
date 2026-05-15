@@ -1,16 +1,16 @@
-"""Metadata context - jakosc metadanych a jakosc SQL z LLM.
+"""Metadata context - jakość metadanych a jakość SQL z LLM.
 
-W realnym projekcie metadane przychodza z vector store (pgvector) i obejmuja:
-- slownik biznesowy (glossary)
+W realnym projekcie metadane przychodzą z vector store (pgvector) i obejmują:
+- słownik biznesowy (glossary)
 - definicje KPI
 - opisy tabel i kolumn
-- wzorce join'ow
-- przykladowe zapytania
+- wzorce join'ów
+- przykładowe zapytania
 
 Tutaj pokazujemy ten sam koncept w skondensowanej, prezentacyjnej formie.
 
 Kluczowy komunikat:
-Jakosc odpowiedzi LLM zalezy bardziej od jakosci metadanych niz od mocy modelu.
+Bez metadanych model nie analizuje finansów - on zgaduje finanse.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ class MetadataContext:
     example_queries: list[str] = field(default_factory=list)
 
     def to_prompt_block(self) -> str:
-        """Formatuje metadane jako blok tekstu do wstrzykniecia w prompt."""
+        """Formatuje metadane jako blok tekstu do wstrzyknięcia w prompt."""
         parts: list[str] = []
         if self.glossary:
             parts.append("# Slownik biznesowy")
@@ -60,114 +60,95 @@ class MetadataContext:
 
 WEAK_CONTEXT = MetadataContext(
     table_descriptions={
-        "core.branch_profitability_fact": "tabela z danymi oddzialow",
+        "core.customer_profitability_fact": "tabela z danymi klientow",
     },
 )
 
 
 # ---------------------------------------------------------------------------
-# Wariant 2 - DOBRE metadane: slownik, KPI, opisy kolumn, przyklady.
+# Wariant 2 - DOBRE metadane: slownik biznesowy, KPI, opisy kolumn, przyklady.
 # ---------------------------------------------------------------------------
 
 STRONG_CONTEXT = MetadataContext(
     glossary={
-        "wynik": (
-            "Wynik finansowy oddzialu - w naszej firmie rozumiany jako marza brutto "
-            "(gross margin). Patrz definicje KPI ponizej."
+        "klient": (
+            "Klient fakturowany - osobny podmiot rozliczeniowy aktywny "
+            "w danym kwartale (kolumna customer_name)."
         ),
-        "spadek r/r (YoY)": (
-            "Zmiana wartosci miedzy biezacym a poprzednim rokiem dla tej samej miary. "
-            "Dla marzy wyrazana w punktach procentowych (pp)."
+        "rentowny / rentownosc": (
+            "Klient o najwyzszym zysku brutto w danym okresie. "
+            "Podstawowy ranking: gross_profit DESC. Marza % to miara wspierajaca."
         ),
-        "oddzial": "Jednostka organizacyjna - kolumna `branch` w tabelach faktow.",
+        "ostatni kwartal": (
+            "Ostatni w pelni zamkniety kwartal kalendarzowy. "
+            "Wyznaczany na podstawie biezacej daty raportu."
+        ),
     },
     kpi_definitions={
-        "gross_margin_pct": "(revenue - cost) / NULLIF(revenue, 0) * 100",
-        "gross_margin_yoy_change_pp": (
-            "gross_margin_pct(year=2025) - gross_margin_pct(year=2024) "
-            "(roznica w punktach procentowych)"
+        "gross_profit": "net_revenue - direct_service_cost",
+        "gross_margin_pct": "gross_profit / NULLIF(net_revenue, 0) * 100",
+        "ranking_metric_rentownosc": "gross_profit DESC",
+        "min_revenue_dla_rankingu_marzowego": (
+            "100 000 PLN (klienci ponizej tego progu wykluczeni "
+            "z rankingu marzy %, by uniknac mylacych wynikow)"
         ),
     },
     table_descriptions={
-        "core.branch_profitability_fact": (
-            "Miesieczne fakty oddzialow: przychod, koszt, produktywnosc operacyjna, "
-            "nadgodziny. Ziarno: branch x month. Aktualizowana 5. dnia roboczego miesiaca."
+        "core.customer_profitability_fact": (
+            "Kwartalne fakty rentownosci klientow. Ziarno: customer x quarter. "
+            "Zawiera: net_revenue, direct_service_cost, gross_profit, gross_margin_pct."
         ),
     },
     column_descriptions={
-        "branch": "Kod oddzialu (varchar). Klucz biznesowy.",
-        "region": "Region geograficzny (North/South/West).",
-        "month": "Miesiac w formacie YYYY-MM.",
-        "revenue": "Przychod w PLN, bez VAT.",
-        "cost": "Koszt calkowity oddzialu w PLN.",
-        "productivity_score": "Operacyjna miara produktywnosci 0..1 (nie finansowa).",
-        "overtime_hours": "Suma godzin nadliczbowych w miesiacu.",
+        "customer_name": "Nazwa klienta fakturowanego (klucz biznesowy).",
+        "quarter": "Kwartal w formacie YYYY-Q[1-4].",
+        "net_revenue": "Przychod netto - bez VAT, po korektach faktur.",
+        "direct_service_cost": (
+            "Bezposredni koszt obslugi klienta - bez kosztow ogolnozakladowych."
+        ),
+        "gross_profit": "Zysk brutto = net_revenue - direct_service_cost.",
+        "gross_margin_pct": "Marza brutto % = gross_profit / net_revenue * 100.",
     },
     example_queries=[
         (
-            "-- Top 3 oddzialy ze spadkiem marzy brutto r/r\n"
-            "WITH yearly AS (\n"
-            "  SELECT branch, EXTRACT(YEAR FROM TO_DATE(month, 'yyyy-MM')) AS y,\n"
-            "         SUM(revenue) AS rev, SUM(cost) AS cost\n"
-            "  FROM core.branch_profitability_fact\n"
-            "  GROUP BY 1, 2\n"
-            ")\n"
-            "SELECT branch,\n"
-            "       MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2024) AS gm_2024,\n"
-            "       MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2025) AS gm_2025,\n"
-            "       (MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2025)\n"
-            "        - MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2024))\n"
-            "       AS yoy_change_pp\n"
-            "FROM yearly\n"
-            "GROUP BY branch\n"
-            "ORDER BY yoy_change_pp ASC\n"
-            "LIMIT 3;"
+            "-- Top 5 klientow wg zysku brutto w ostatnim zamknietym kwartale\n"
+            "SELECT customer_name, net_revenue, gross_profit, gross_margin_pct\n"
+            "FROM core.customer_profitability_fact\n"
+            "WHERE quarter = '2026-Q1'\n"
+            "ORDER BY gross_profit DESC\n"
+            "LIMIT 5;"
         ),
     ],
 )
 
 
 def naive_sql_from_weak_context(question: str) -> str:
-    """Symulacja SQL, ktory LLM moglby wygenerowac przy slabym kontekscie.
+    """SQL, jaki LLM moglby wygenerowac przy slabym kontekscie.
 
-    Pokazuje typowe braki: brak filtra czasu, brak definicji "wyniku" (AI zgaduje
-    ze chodzi o revenue), brak agregacji, SELECT * - czyli zapytanie "niby dziala"
-    ale do niczego sie nie nadaje w analityce finansowej.
+    Bez slownika "rentownosc" → AI zgaduje najprostsza interpretacje:
+    "rentowny" = "ma duzo pieniedzy" = "wysoki przychod".
+    Pomija filtr kwartalu i ranking po zysku.
     """
     _ = question
     return (
-        "SELECT *\n"
-        "FROM core.branch_profitability_fact\n"
-        "ORDER BY revenue ASC;"
+        "SELECT customer_name, net_revenue\n"
+        "FROM core.customer_profitability_fact\n"
+        "ORDER BY net_revenue DESC\n"
+        "LIMIT 5;"
     )
 
 
 def grounded_sql_from_strong_context(question: str) -> str:
-    """Symulacja SQL przy dobrym kontekscie - poprawnie liczy YoY marzy brutto."""
+    """SQL przy dobrym kontekscie - ranking po zysku brutto, ostatni kwartal."""
     _ = question
     return (
-        "WITH yearly AS (\n"
-        "  SELECT branch,\n"
-        "         EXTRACT(YEAR FROM TO_DATE(month, 'yyyy-MM')) AS year_over_year,\n"
-        "         SUM(revenue) AS revenue_sum,\n"
-        "         SUM(cost) AS cost_sum\n"
-        "  FROM core.branch_profitability_fact\n"
-        "  WHERE month >= '2024-01'\n"
-        "  GROUP BY 1, 2\n"
-        ")\n"
-        "SELECT branch,\n"
-        "       MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
-        "         FILTER (WHERE year_over_year = 2024) AS gross_margin_2024_pct,\n"
-        "       MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
-        "         FILTER (WHERE year_over_year = 2025) AS gross_margin_2025_pct,\n"
-        "       (MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
-        "          FILTER (WHERE year_over_year = 2025)\n"
-        "        - MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
-        "          FILTER (WHERE year_over_year = 2024))\n"
-        "       AS yoy_change_pp\n"
-        "FROM yearly\n"
-        "GROUP BY branch\n"
-        "ORDER BY yoy_change_pp ASC\n"
+        "SELECT customer_name,\n"
+        "       net_revenue,\n"
+        "       gross_profit,\n"
+        "       gross_margin_pct\n"
+        "FROM core.customer_profitability_fact\n"
+        "WHERE quarter = '2026-Q1'\n"
+        "ORDER BY gross_profit DESC\n"
         "LIMIT 5;"
     )
 

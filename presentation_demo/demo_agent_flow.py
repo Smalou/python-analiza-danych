@@ -91,14 +91,12 @@ def summarize_result(result: QueryResult) -> str:
     if df.empty:
         return "Brak danych spelniajacych kryteria pytania."
 
-    if "yoy_change_pp" in df.columns:
-        worst = df.iloc[0]
+    if "gross_profit" in df.columns and "customer_name" in df.columns:
+        top = df.iloc[0]
         return (
-            f"Najwiekszy spadek marzy brutto r/r odnotowal oddzial "
-            f"'{worst['branch']}' "
-            f"({worst['yoy_change_pp']:+.1f} pp, "
-            f"{worst['gross_margin_2024_pct']:.1f}% -> "
-            f"{worst['gross_margin_2025_pct']:.1f}%)."
+            f"Najbardziej rentowny klient w ostatnim kwartale: '{top['customer_name']}' "
+            f"(zysk brutto {top['gross_profit']:,.0f} PLN, "
+            f"marza {top['gross_margin_pct']:.1f}%)."
         )
 
     return f"Zwrocono {result.row_count} wierszy ({result.note})."
@@ -171,7 +169,7 @@ def render_agent_run(run: AgentRun) -> str:
 
 if __name__ == "__main__":
     question_pl = (
-        "Ktore oddzialy maja najwiekszy spadek wynikow rok do roku?"
+        "Ktorzy klienci byli najbardziej rentowni w ostatnim kwartale?"
     )
     run = run_agent_flow(question_pl)
     print(render_agent_run(run))
