@@ -28,7 +28,7 @@ _BRANCH_PRODUCTIVITY_ROWS: list[dict[str, object]] = [
     {"branch": "A", "region": "North", "month": "2025-01", "revenue": 115_000, "cost": 85_000, "productivity_score": 0.74, "overtime_hours": 180},
     {"branch": "A", "region": "North", "month": "2025-02", "revenue": 112_000, "cost": 87_000, "productivity_score": 0.71, "overtime_hours": 210},
 
-    # Branch B - region South - duzy spadek produktywnosci r/r
+    # Branch B - region South - duzy spadek marzy brutto r/r (rosnacy koszt)
     {"branch": "B", "region": "South", "month": "2024-01", "revenue": 150_000, "cost": 95_000, "productivity_score": 0.88, "overtime_hours": 80},
     {"branch": "B", "region": "South", "month": "2024-02", "revenue": 148_000, "cost": 96_000, "productivity_score": 0.86, "overtime_hours": 95},
     {"branch": "B", "region": "South", "month": "2025-01", "revenue": 140_000, "cost": 105_000, "productivity_score": 0.65, "overtime_hours": 260},
@@ -46,7 +46,7 @@ _BRANCH_PRODUCTIVITY_ROWS: list[dict[str, object]] = [
     {"branch": "D", "region": "North", "month": "2025-01", "revenue": 95_000,  "cost": 70_000, "productivity_score": 0.78, "overtime_hours": 120},
     {"branch": "D", "region": "North", "month": "2025-02", "revenue": 97_000,  "cost": 69_500, "productivity_score": 0.80, "overtime_hours": 115},
 
-    # Branch E - region South - umiarkowany spadek produktywnosci r/r
+    # Branch E - region South - umiarkowany spadek marzy brutto r/r
     {"branch": "E", "region": "South", "month": "2024-01", "revenue": 130_000, "cost": 88_000, "productivity_score": 0.84, "overtime_hours": 100},
     {"branch": "E", "region": "South", "month": "2024-02", "revenue": 132_000, "cost": 89_000, "productivity_score": 0.83, "overtime_hours": 105},
     {"branch": "E", "region": "South", "month": "2025-01", "revenue": 128_000, "cost": 95_000, "productivity_score": 0.73, "overtime_hours": 170},
@@ -114,20 +114,35 @@ def execute_mock_query(sql: str) -> QueryResult:
 
 
 def _branch_yoy_drop(df: pd.DataFrame) -> QueryResult:
-    """Liczy zmiane sredniej produktywnosci 2025 vs 2024 per oddzial."""
+    """Liczy zmiane marzy brutto 2025 vs 2024 per oddzial.
+
+    Marza brutto = (revenue - cost) / revenue * 100 (poprawna definicja ksiegowa).
+    YoY wyrazone w punktach procentowych (pp) - klasyczna miara dla marz.
+    """
     yearly = (
-        df.groupby(["branch", "year"], as_index=False)["productivity_score"]
-        .mean()
-        .pivot(index="branch", columns="year", values="productivity_score")
+        df.groupby(["branch", "year"], as_index=False)
+        .agg(revenue=("revenue", "sum"), cost=("cost", "sum"))
+    )
+    yearly["gross_margin_pct"] = (
+        (yearly["revenue"] - yearly["cost"]) / yearly["revenue"] * 100
+    )
+    pivoted = (
+        yearly.pivot(index="branch", columns="year", values="gross_margin_pct")
         .reset_index()
     )
-    yearly["yoy_change_pct"] = (yearly[2025] / yearly[2024] - 1.0) * 100
-    yearly = yearly.rename(columns={2024: "productivity_2024", 2025: "productivity_2025"})
-    yearly = yearly.sort_values("yoy_change_pct").reset_index(drop=True)
+    pivoted["yoy_change_pp"] = (pivoted[2025] - pivoted[2024]).round(2)
+    pivoted = pivoted.rename(
+        columns={2024: "gross_margin_2024_pct", 2025: "gross_margin_2025_pct"}
+    )
+    pivoted["gross_margin_2024_pct"] = pivoted["gross_margin_2024_pct"].round(2)
+    pivoted["gross_margin_2025_pct"] = pivoted["gross_margin_2025_pct"].round(2)
+    pivoted = pivoted.sort_values("yoy_change_pp").reset_index(drop=True)
     return QueryResult(
-        rows=yearly[["branch", "productivity_2024", "productivity_2025", "yoy_change_pct"]],
-        row_count=len(yearly),
-        note="YoY produktywnosci per oddzial",
+        rows=pivoted[
+            ["branch", "gross_margin_2024_pct", "gross_margin_2025_pct", "yoy_change_pp"]
+        ],
+        row_count=len(pivoted),
+        note="YoY marzy brutto per oddzial",
     )
 
 

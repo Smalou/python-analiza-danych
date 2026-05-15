@@ -71,28 +71,27 @@ WEAK_CONTEXT = MetadataContext(
 
 STRONG_CONTEXT = MetadataContext(
     glossary={
-        "produktywnosc": (
-            "Wskaznik 0..1 obliczany jako stosunek zrealizowanych zadan "
-            "do planowanych. Wyzszy = lepiej."
+        "wynik": (
+            "Wynik finansowy oddzialu - w naszej firmie rozumiany jako marza brutto "
+            "(gross margin). Patrz definicje KPI ponizej."
         ),
         "spadek r/r (YoY)": (
-            "Zmiana procentowa miedzy biezacym a poprzednim rokiem dla tej "
-            "samej miary (current - previous) / previous * 100."
+            "Zmiana wartosci miedzy biezacym a poprzednim rokiem dla tej samej miary. "
+            "Dla marzy wyrazana w punktach procentowych (pp)."
         ),
         "oddzial": "Jednostka organizacyjna - kolumna `branch` w tabelach faktow.",
     },
     kpi_definitions={
         "gross_margin_pct": "(revenue - cost) / NULLIF(revenue, 0) * 100",
-        "productivity_yoy_change_pct": (
-            "(AVG(productivity_score) FILTER (year = 2025) "
-            "- AVG(productivity_score) FILTER (year = 2024)) "
-            "/ AVG(productivity_score) FILTER (year = 2024) * 100"
+        "gross_margin_yoy_change_pp": (
+            "gross_margin_pct(year=2025) - gross_margin_pct(year=2024) "
+            "(roznica w punktach procentowych)"
         ),
     },
     table_descriptions={
         "core.branch_productivity_fact": (
-            "Miesieczne fakty produktywnosci oddzialow. Ziarno: branch x month. "
-            "Aktualizowana 5. dnia roboczego miesiaca."
+            "Miesieczne fakty oddzialow: przychod, koszt, produktywnosc operacyjna, "
+            "nadgodziny. Ziarno: branch x month. Aktualizowana 5. dnia roboczego miesiaca."
         ),
     },
     column_descriptions={
@@ -101,27 +100,27 @@ STRONG_CONTEXT = MetadataContext(
         "month": "Miesiac w formacie YYYY-MM.",
         "revenue": "Przychod w PLN, bez VAT.",
         "cost": "Koszt calkowity oddzialu w PLN.",
-        "productivity_score": "Produktywnosc 0..1 (patrz slownik).",
+        "productivity_score": "Operacyjna miara produktywnosci 0..1 (nie finansowa).",
         "overtime_hours": "Suma godzin nadliczbowych w miesiacu.",
     },
     example_queries=[
         (
-            "-- Top 3 oddzialy ze spadkiem produktywnosci r/r\n"
+            "-- Top 3 oddzialy ze spadkiem marzy brutto r/r\n"
             "WITH yearly AS (\n"
             "  SELECT branch, EXTRACT(YEAR FROM TO_DATE(month, 'yyyy-MM')) AS y,\n"
-            "         AVG(productivity_score) AS p\n"
+            "         SUM(revenue) AS rev, SUM(cost) AS cost\n"
             "  FROM core.branch_productivity_fact\n"
             "  GROUP BY 1, 2\n"
             ")\n"
             "SELECT branch,\n"
-            "       MAX(p) FILTER (WHERE y = 2024) AS p_2024,\n"
-            "       MAX(p) FILTER (WHERE y = 2025) AS p_2025,\n"
-            "       (MAX(p) FILTER (WHERE y = 2025)\n"
-            "        / NULLIF(MAX(p) FILTER (WHERE y = 2024), 0) - 1) * 100\n"
-            "         AS yoy_change_pct\n"
+            "       MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2024) AS gm_2024,\n"
+            "       MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2025) AS gm_2025,\n"
+            "       (MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2025)\n"
+            "        - MAX((rev - cost) / NULLIF(rev, 0) * 100) FILTER (WHERE y = 2024))\n"
+            "       AS yoy_change_pp\n"
             "FROM yearly\n"
             "GROUP BY branch\n"
-            "ORDER BY yoy_change_pct ASC\n"
+            "ORDER BY yoy_change_pp ASC\n"
             "LIMIT 3;"
         ),
     ],
@@ -131,41 +130,44 @@ STRONG_CONTEXT = MetadataContext(
 def naive_sql_from_weak_context(question: str) -> str:
     """Symulacja SQL, ktory LLM moglby wygenerowac przy slabym kontekscie.
 
-    Pokazuje typowe braki: brak filtra czasu, niejasna definicja "spadku",
-    brak agregacji, SELECT * - czyli zapytanie "niby dziala" ale do niczego
-    sie nie nadaje w analityce finansowej.
+    Pokazuje typowe braki: brak filtra czasu, brak definicji "wyniku" (AI zgaduje
+    ze chodzi o revenue), brak agregacji, SELECT * - czyli zapytanie "niby dziala"
+    ale do niczego sie nie nadaje w analityce finansowej.
     """
     _ = question
     return (
         "SELECT *\n"
         "FROM core.branch_productivity_fact\n"
-        "ORDER BY productivity_score ASC;"
+        "ORDER BY revenue ASC;"
     )
 
 
 def grounded_sql_from_strong_context(question: str) -> str:
-    """Symulacja SQL przy dobrym kontekscie - poprawnie liczy YoY i ogranicza wynik."""
+    """Symulacja SQL przy dobrym kontekscie - poprawnie liczy YoY marzy brutto."""
     _ = question
     return (
         "WITH yearly AS (\n"
         "  SELECT branch,\n"
         "         EXTRACT(YEAR FROM TO_DATE(month, 'yyyy-MM')) AS year_over_year,\n"
-        "         AVG(productivity_score) AS productivity_avg\n"
+        "         SUM(revenue) AS revenue_sum,\n"
+        "         SUM(cost) AS cost_sum\n"
         "  FROM core.branch_productivity_fact\n"
         "  WHERE month >= '2024-01'\n"
         "  GROUP BY 1, 2\n"
         ")\n"
         "SELECT branch,\n"
-        "       MAX(productivity_avg) FILTER (WHERE year_over_year = 2024) "
-        "AS productivity_2024,\n"
-        "       MAX(productivity_avg) FILTER (WHERE year_over_year = 2025) "
-        "AS productivity_2025,\n"
-        "       (MAX(productivity_avg) FILTER (WHERE year_over_year = 2025)\n"
-        "        / NULLIF(MAX(productivity_avg) FILTER (WHERE year_over_year = 2024), 0)\n"
-        "        - 1) * 100 AS yoy_change_pct\n"
+        "       MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
+        "         FILTER (WHERE year_over_year = 2024) AS gross_margin_2024_pct,\n"
+        "       MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
+        "         FILTER (WHERE year_over_year = 2025) AS gross_margin_2025_pct,\n"
+        "       (MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
+        "          FILTER (WHERE year_over_year = 2025)\n"
+        "        - MAX((revenue_sum - cost_sum) / NULLIF(revenue_sum, 0) * 100)\n"
+        "          FILTER (WHERE year_over_year = 2024))\n"
+        "       AS yoy_change_pp\n"
         "FROM yearly\n"
         "GROUP BY branch\n"
-        "ORDER BY yoy_change_pct ASC\n"
+        "ORDER BY yoy_change_pp ASC\n"
         "LIMIT 5;"
     )
 

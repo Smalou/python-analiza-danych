@@ -22,11 +22,11 @@ import pandas as pd
 
 _AGENT_LOG_ROWS: list[dict[str, object]] = [
     {"question_id": "q01", "user_question": "Top oddzialy wg przychodu",                "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.20, "rows_returned": 5},
-    {"question_id": "q02", "user_question": "Spadek produktywnosci r/r",                "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.85, "rows_returned": 5},
+    {"question_id": "q02", "user_question": "Spadek marzy brutto r/r",                  "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.85, "rows_returned": 5},
     {"question_id": "q03", "user_question": "Pokaz wszystko z tabeli faktow",           "metadata_quality": "weak",   "sql_validation_status": "warning", "execution_status": "success", "response_time_seconds": 3.40, "rows_returned": 1000},
     {"question_id": "q04", "user_question": "Usun stare rekordy",                       "metadata_quality": "weak",   "sql_validation_status": "blocked", "execution_status": "blocked", "response_time_seconds": 0.30, "rows_returned": 0},
     {"question_id": "q05", "user_question": "Marza brutto per region",                  "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.05, "rows_returned": 3},
-    {"question_id": "q06", "user_question": "Nadgodziny vs produktywnosc",              "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.50, "rows_returned": 20},
+    {"question_id": "q06", "user_question": "Marza brutto vs nadgodziny",               "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.50, "rows_returned": 20},
     {"question_id": "q07", "user_question": "Pokaz koszty",                             "metadata_quality": "weak",   "sql_validation_status": "warning", "execution_status": "error",   "response_time_seconds": 4.10, "rows_returned": 0},
     {"question_id": "q08", "user_question": "Pokaz koszty per miesiac w 2025",          "metadata_quality": "strong", "sql_validation_status": "ok",      "execution_status": "success", "response_time_seconds": 1.30, "rows_returned": 2},
     {"question_id": "q09", "user_question": "Drop table users",                         "metadata_quality": "weak",   "sql_validation_status": "blocked", "execution_status": "blocked", "response_time_seconds": 0.25, "rows_returned": 0},

@@ -91,13 +91,14 @@ def summarize_result(result: QueryResult) -> str:
     if df.empty:
         return "Brak danych spelniajacych kryteria pytania."
 
-    if "yoy_change_pct" in df.columns:
+    if "yoy_change_pp" in df.columns:
         worst = df.iloc[0]
         return (
-            f"Najwiekszy spadek produktywnosci r/r odnotowal oddzial "
+            f"Najwiekszy spadek marzy brutto r/r odnotowal oddzial "
             f"'{worst['branch']}' "
-            f"({worst['yoy_change_pct']:.1f}% zmiany, "
-            f"{worst['productivity_2024']:.2f} -> {worst['productivity_2025']:.2f})."
+            f"({worst['yoy_change_pp']:+.1f} pp, "
+            f"{worst['gross_margin_2024_pct']:.1f}% -> "
+            f"{worst['gross_margin_2025_pct']:.1f}%)."
         )
 
     return f"Zwrocono {result.row_count} wierszy ({result.note})."
@@ -170,7 +171,7 @@ def render_agent_run(run: AgentRun) -> str:
 
 if __name__ == "__main__":
     question_pl = (
-        "Ktore oddzialy maja najwiekszy spadek produktywnosci rok do roku?"
+        "Ktore oddzialy maja najwiekszy spadek wynikow rok do roku?"
     )
     run = run_agent_flow(question_pl)
     print(render_agent_run(run))

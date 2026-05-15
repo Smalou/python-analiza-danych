@@ -45,7 +45,7 @@ from presentation_demo.sql_guardrails import format_validation_report, validate_
 # Drobne helpery prezentacyjne.
 # ---------------------------------------------------------------------------
 
-BUSINESS_QUESTION = "Ktore oddzialy maja najwiekszy spadek produktywnosci rok do roku?"
+BUSINESS_QUESTION = "Ktore oddzialy maja najwiekszy spadek wynikow rok do roku?"
 
 
 def _section(title: str) -> None:
