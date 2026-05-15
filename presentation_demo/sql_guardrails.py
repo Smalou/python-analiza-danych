@@ -63,9 +63,13 @@ _BLOCKED_KEYWORDS: tuple[str, ...] = (
 # Pattern dla "SELECT *" - dopuszczalne w eksploracji, problematyczne na produkcji.
 _SELECT_STAR = re.compile(r"select\s+\*", re.IGNORECASE)
 
-# Pattern szukajacy filtra po dacie/miesiacu/roku.
+# Pattern szukajacy filtra po dacie/okresie. Obejmuje typowe kolumny ziarna czasu
+# w tabelach faktow: dzien, miesiac, kwartal, rok, znaczniki czasu.
 _HAS_DATE_FILTER = re.compile(
-    r"\b(where|and)\b[^;]*\b(month|date|year|calendar_date|created_at)\b",
+    r"\b(where|and)\b[^;]*\b("
+    r"day|date|week|month|quarter|year|period|"
+    r"calendar_date|created_at|updated_at|event_time"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -163,11 +167,11 @@ def format_validation_report(result: ValidationResult) -> str:
 
 if __name__ == "__main__":
     good_sql = (
-        "SELECT branch, AVG(productivity_score) "
-        "FROM core.branch_profitability_fact "
-        "WHERE month >= '2024-01' GROUP BY branch LIMIT 100;"
+        "SELECT customer_name, gross_profit "
+        "FROM core.customer_profitability_fact "
+        "WHERE quarter = '2026-Q1' ORDER BY gross_profit DESC LIMIT 5;"
     )
-    bad_sql = "SELECT * FROM core.branch_profitability_fact; DROP TABLE core.users;"
+    bad_sql = "SELECT * FROM core.customer_profitability_fact; DROP TABLE core.users;"
 
     print("Dobre zapytanie:")
     print(format_validation_report(validate_sql(good_sql)))
