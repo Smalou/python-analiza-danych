@@ -107,28 +107,31 @@ Kod leży w `presentation_demo/` (layout pod monorepo).
 - Wykres „Failure rate per jakosc metadanych” (słaba vs mocna jakość kontekstu).
 - `st.status` przy uruchomieniu agenta (kolejne kroki pipeline’u).
 
-### Tytuły slajdów (propozycje)
+### Układ scen (8 slajdów, ~7 min)
 
-1. Python w erze AI — od skryptu do warstwy biznesowej  
-2. Pytanie biznesowe trafia do AI — co dzieje się pod spodem?  
-3. Metadane: różnica między „AI zgaduje” a „AI rozumie”  
-4. SQL od AI nie jest święty — walidacja po stronie Pythona  
-5. Mock warehouse — prototypowanie analityki bez chmury  
-6. Czy mój agent w ogóle działa? Observability w pandas  
-7. KPI to nie wzór — to decyzja biznesowa  
-8. Rola specjalisty biznesowego: ekspert od kontekstu, nie od składni  
+| # | Tytuł sceny | Klucz w `SCENES` | Co pokazuje |
+|---|---|---|---|
+| 1 | Rola analityka się zmienia | `hook` | Hook: 300 → 1 osoba, pytanie ramujące prezentację. |
+| 2 | Python łączy biznes z AI | `python_pipeline` | Konkretne pytanie + 6-krokowy pipeline. |
+| 3 | Większy model nie naprawi złych definicji | `metadata` | Weak vs strong SQL na tym samym pytaniu. |
+| 4 | KPI to wciąż decyzja człowieka | `finance_kpi` | Marża brutto vs markup — definicja należy do eksperta. |
+| 5 | Demo na żywo | `live_demo` | Cały pipeline w jednym kliknięciu (`st.status`). |
+| 6 | Skąd wiemy, że agentowi można ufać | `trust` | Walidacja (1 zapytanie) + pomiar (1000 zapytań). |
+| 7 | Słownik, funkcja, if, pandas | `foundations_code` | Moment aha: fundament z zajęć + 4 fragmenty kodu. |
+| 8 | Python + AI = dźwignia | `conclusion` | Podsumowanie, dwie karty. |
 
-### Jedno zdanie na sekcję
+### Jedno zdanie na scenę
 
-| Sekcja | Zdanie |
+| Scena | Zdanie |
 |---|---|
-| 1. Pytanie biznesowe | „Użytkownik nie pisze SQL — pisze po polsku. To Python tłumaczy intencję na zapytanie.” |
-| 2. Kontekst metadanych | „Jakość AI = jakość metadanych. Słownik biznesowy ma większą wartość niż większy model.” |
-| 3. Wygenerowany SQL | „Patrzcie, jak ten sam model produkuje inny SQL, gdy dostaje definicje KPI w prompt.” |
-| 4. Walidacja | „Python sprawdza każde zapytanie, zanim ono dotknie hurtowni — jak audytor przy fakturze.” |
-| 5. Wynik analizy | „Tu kończy się fragment kodu — zaczyna interpretacja biznesowa. To Wasza rola.” |
-| 6. Observability | „Jeśli budujemy AI, musimy też mierzyć, czy ono naprawdę działa. Tu liczy się pandas.” |
-| 7. KPI finansowe | „AI policzy oba wzory. Ekspert finansowy decyduje, który trafia na slajd zarządu.” |
+| 1. Hook | „300 osób kiedyś, 1 dziś. Pytanie tej prezentacji: zastępuje czy wzmacnia?" |
+| 2. Python pipeline | „Użytkownik pisze pytanie po polsku — Python prowadzi wszystko pomiędzy.” |
+| 3. Kontekst | „Ten sam model, inny kontekst — inny SQL. Słownik firmy > siła modelu.” |
+| 4. KPI | „AI policzy oba wzory. Ekspert decyduje, który trafia na slajd zarządu.” |
+| 5. Demo | „Pięć kroków pipeline'u na żywo — patrzcie na `st.status`." |
+| 6. Zaufanie | „Walidacja sprawdza jedno zapytanie. Pomiar — tysiąc. Razem = zaufanie.” |
+| 7. Fundamenty | „Wszystko, co właśnie zobaczyliście, jest ze słownika, funkcji, `if` i pandas.” |
+| 8. Podsumowanie | „AI obniża barierę techniczną, ale podnosi wagę fundamentów.” |
 
 ---
 

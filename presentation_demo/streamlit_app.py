@@ -20,10 +20,7 @@ from presentation_demo.demo_agent_flow import (  # noqa: E402
     mock_llm_generate_sql,
     summarize_result,
 )
-from presentation_demo.finance_kpi_example import (  # noqa: E402
-    compare_margins,
-    explain_difference,
-)
+from presentation_demo.finance_kpi_example import compare_margins  # noqa: E402
 from presentation_demo.metadata_context import STRONG_CONTEXT, WEAK_CONTEXT  # noqa: E402
 from presentation_demo.mock_warehouse import execute_mock_query  # noqa: E402
 from presentation_demo.observability_demo import compute_summary, get_agent_logs  # noqa: E402
@@ -1132,19 +1129,19 @@ def render_top_navigation() -> None:
 # -----------------------------------------------------------------------------
 
 
-def scene_scale(_: DemoState) -> None:
+def scene_hook(_: DemoState) -> None:
     st.markdown(
         """
         <div class="hero-panel">
             <div class="eyebrow">Wprowadzenie</div>
-            <div class="big-title">Praca analityka zmienia się szybciej niż kiedykolwiek wcześniej.</div>
+            <div class="big-title">Rola analityka zmienia się szybciej niż kiedykolwiek.</div>
             <div class="subtitle">
-                Python i AI sprawiają, że jedna osoba potrafi dziś zaprototypować to,
-                co kiedyś robiły duże zespoły. Excel nie znika — ale pojawia się obok niego nowe narzędzie.
+                To, co kiedyś robił duży zespół, dziś jedna osoba może zaprototypować
+                w Pythonie. Excel zostaje — obok pojawia się nowe narzędzie.
             </div>
             <div class="hero-meta">
-                Cała ta prezentacja w przeglądarce — interfejs, logika i demo — jest napisana w Pythonie
-                (Streamlit). Kod źródłowy i instrukcje uruchomienia:
+                Ta prezentacja w przeglądarce — interfejs, logika i demo — jest w całości napisana
+                w Pythonie (Streamlit). Kod i instrukcje uruchomienia:
                 <a class="hero-repo-link" href="https://github.com/Smalou/python-analiza-danych" target="_blank" rel="noopener noreferrer">github.com/Smalou/python-analiza-danych</a>.
                 <div class="hero-author">Autorka materiału: Sylwia Malinowska.</div>
             </div>
@@ -1157,132 +1154,62 @@ def scene_scale(_: DemoState) -> None:
     with c1:
         render_big_number(
             "300",
-            "tyle osób potrafiło tworzyć raporty, integrować dane i utrzymywać dashboardy w dużej firmie.",
+            "tyle osób w dużej firmie utrzymywało dawniej raporty, integracje i dashboardy.",
         )
     with c2:
         render_big_number(
             "1",
-            "tyle osób wystarczy dziś, żeby zbudować działający prototyp takiego systemu w Pythonie.",
+            "tyle osób wystarczy dziś, żeby zbudować działający prototyp takiego systemu.",
             accent=True,
         )
     with c3:
         render_big_number(
             "7 min",
-            "tyle czasu zajmie pokazanie, jak Python łączy biznes, dane i AI w jeden przepływ.",
+            "tyle zajmie pokazanie, jak Python łączy biznes, dane i AI w jeden przepływ.",
         )
 
     render_statement(
-        "To nie historia o zastępowaniu ludzi. To historia o tym, że jedna osoba "
-        "może zrobić dziś więcej — pod warunkiem, że rozumie dane i decyzje, które na nich opiera."
+        "Pytanie tej prezentacji: co decyduje, czy Python + AI zastępują analityka — czy go wzmacniają?"
     )
 
 
-def scene_python_role(_: DemoState) -> None:
-    render_eyebrow("Dlaczego Python")
-    render_medium_title("Python łączy biznes, dane i AI w jeden przepływ.")
+def scene_python_pipeline(state: DemoState) -> None:
+    render_eyebrow("Python łączy biznes z AI")
+    render_medium_title("Pytanie po polsku — wynik z bazy. Python prowadzi wszystko pomiędzy.")
     render_subtitle(
-        "Excel obsługuje dane. Python obsługuje cały proces — od pytania, "
-        "przez bazę danych, aż do gotowej odpowiedzi."
+        "Użytkownik nie musi znać SQL ani Pythona. Pisze pytanie tak, jak zapytałby "
+        "kolegę z działu finansów. Reszta dzieje się pod spodem."
     )
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        render_card(
-            "Dane",
-            "Czyszczenie tabel, łączenie źródeł, agregacje, szybka eksploracja — wszystko, "
-            "co dziś robisz w Excelu, tylko bez limitów.",
-            strong=True,
-        )
-    with c2:
-        render_card(
-            "Sztuczna inteligencja",
-            "Rozmowa z modelem, generowanie zapytań SQL, interpretacja pytań w języku naturalnym.",
-            strong=True,
-        )
-    with c3:
-        render_card(
-            "Łączenie systemów",
-            "Komunikacja z bazami, hurtowniami danych, BI, automatyzacja powtarzalnych raportów.",
-            strong=True,
-        )
-
-    st.markdown('<div style="height: 0.8rem;"></div>', unsafe_allow_html=True)
-    render_section_title("Co dzieje się pod spodem, krok po kroku")
-    render_flow_steps(
-        [
-            ("Pytanie biznesowe", "Użytkownik pisze normalne pytanie po polsku."),
-            ("Kontekst biznesowy", "Python wyszukuje definicje KPI, opisy tabel, słownik."),
-            ("Polecenie dla AI", "Składa pytanie + kontekst i wysyła do modelu językowego."),
-            ("Zapytanie do bazy", "AI tworzy zapytanie SQL — Python je przejmuje."),
-            ("Sprawdzenie bezpieczeństwa", "Czy zapytanie nie usuwa danych? Czy ma sens?"),
-            ("Wynik z bazy danych", "Zwracamy odpowiedź jako tabelę i krótki komentarz."),
-        ]
-    )
-
-
-def scene_foundations(_: DemoState) -> None:
-    render_eyebrow("To są te same podstawy")
-    render_medium_title("Zaawansowane systemy AI stoją na prostych elementach Pythona.")
-    render_subtitle(
-        "To, czego uczyliście się na przedmiocie, nie jest tylko ćwiczeniem akademickim. "
-        "To ten sam fundament, z którego buduje się narzędzia łączące dane, biznes i AI."
-    )
-
-    left, right = st.columns([1.05, 1.15], vertical_alignment="top")
-
-    with left:
-        render_section_title("Fundament z zajęć")
-        st.markdown('<div class="foundation-grid">', unsafe_allow_html=True)
-        render_foundation_item("Słowniki", "Przechowują definicje KPI, konfigurację i kontekst biznesowy.")
-        render_foundation_item("Funkcje", "Dzielą proces na kroki: prompt, walidacja, wykonanie, wynik.")
-        render_foundation_item("if / warunki", "Kontrolują, czy wynik AI można bezpiecznie wykonać.")
-        render_foundation_item("pandas", "Analizuje dane, logi, skuteczność i błędy działania systemu.")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with right:
-        render_section_title("To samo w systemie AI")
-        render_flow_steps(
-            [
-                ("Słownik KPI", "Definicja marży, właściciel, wzór, opis biznesowy."),
-                ("Funkcja promptu", "Składa pytanie użytkownika z kontekstem dla AI."),
-                ("Warunek bezpieczeństwa", "Blokuje ryzykowne zapytania przed wykonaniem."),
-                ("DataFrame z logami", "Pokazuje, kiedy agent działa, a kiedy się myli."),
-            ]
-        )
-
-    render_statement(
-        "Nie musicie od razu znać architektury AI systemów. Ale jeśli rozumiecie słowniki, "
-        "funkcje, warunki i pandas — rozumiecie fundament."
-    )
-
-
-def scene_business_question(state: DemoState) -> None:
-    render_eyebrow("Nowy interfejs analityki")
-    render_medium_title("Wystarczy zapytać po polsku.")
-    render_subtitle(
-        "Użytkownik nie musi znać SQL ani Pythona. Pisze pytanie tak, "
-        "jak zapytałby kolegę z działu finansów."
-    )
-
-    left, right = st.columns([1.15, 1], vertical_alignment="top")
+    left, right = st.columns([1, 1.25], vertical_alignment="top")
     with left:
         render_section_title("Pytanie od osoby z działu finansów")
         st.info(f'"{state.question}"')
-        render_statement(
-            "Pytanie wygląda prosto. Trudność zaczyna się pod spodem: "
-            "co znaczy „wynik”, którego okresu dotyczy, jak liczymy spadek."
-        )
-    with right:
-        render_section_title("Co Python robi z tym pytaniem")
-        render_flow_steps(
+        render_section_title("Trudność zaczyna się pod spodem")
+        render_insight_list(
             [
-                ("Czyta pytanie", "Rozumie temat — oddziały, wyniki, porównanie roczne."),
-                ("Sięga po definicje", "Słownik biznesowy: co znaczy „wynik” w naszej firmie."),
-                ("Pisze polecenie dla AI", "Łączy pytanie z definicjami w jedną instrukcję."),
-                ("Otrzymuje zapytanie SQL", "Model językowy zwraca kod do bazy danych."),
-                ("Sprawdza i wykonuje", "Walidacja, potem zapytanie do bazy, potem odpowiedź."),
+                (False, "Co dokładnie znaczy „wynik” — przychód, marża, EBITDA?"),
+                (False, "Jakiego okresu dotyczy „rok do roku”?"),
+                (False, "Jak liczymy „największy spadek” — wartością czy procentem?"),
             ]
         )
+    with right:
+        render_section_title("Co Python robi z tym pytaniem — krok po kroku")
+        render_flow_steps(
+            [
+                ("Pytanie biznesowe", "Użytkownik pisze normalne pytanie po polsku."),
+                ("Kontekst biznesowy", "Python sięga po definicje KPI, opisy tabel, słownik firmy."),
+                ("Polecenie dla AI", "Składa pytanie + kontekst w jedną instrukcję dla modelu."),
+                ("Zapytanie do bazy", "Model zwraca SQL — Python go przejmuje."),
+                ("Sprawdzenie bezpieczeństwa", "Czy zapytanie nie usuwa danych? Czy ma sens?"),
+                ("Wynik dla biznesu", "Tabela z bazy + krótki komentarz w języku użytkownika."),
+            ]
+        )
+
+    render_statement(
+        "Python nie jest tu „kolejnym językiem programowania”. Jest warstwą, która łączy "
+        "język biznesu, model AI i hurtownię danych."
+    )
 
 
 def scene_metadata(state: DemoState) -> None:
@@ -1320,14 +1247,62 @@ def scene_metadata(state: DemoState) -> None:
         )
 
     render_statement(
-        "Większy model nie rozwiąże chaosu w definicjach biznesowych. "
-        "Słownik firmy jest ważniejszy niż siła modelu."
+        "Większy model nie naprawi złych definicji. Słownik firmy jest ważniejszy niż siła modelu."
+    )
+
+
+def scene_finance_kpi(_: DemoState) -> None:
+    render_eyebrow("Kontekst to wciąż decyzja człowieka")
+    render_medium_title("Liczbę policzy AI. Ekspert decyduje, czy to dobra liczba.")
+    render_subtitle(
+        "Kontekst biznesowy z poprzedniego slajdu to definicje KPI. A skąd biorą się definicje? "
+        "AI nie wie samo z siebie, że marża brutto liczy się od przychodu, a nie od kosztu."
+    )
+
+    margins_df = load_margin_data().rename(
+        columns={
+            "branch": "Oddział",
+            "revenue": "Przychód",
+            "cost": "Koszt",
+            "markup_naive_pct": "Marża wg błędnego wzoru (%)",
+            "gross_margin_pct_correct": "Marża brutto — poprawny wzór (%)",
+            "delta_pp": "Różnica (pp)",
+        }
+    )
+
+    left, right = st.columns([1.35, 1], vertical_alignment="top")
+    with left:
+        render_section_title("Ta sama firma. Dwa różne wzory. Dwa różne wnioski.")
+        st.dataframe(margins_df, width="stretch", hide_index=True)
+        st.info(
+            "**Różnica wynika z mianownika:**\n\n"
+            "• **markup** `=(revenue − cost) / cost` → **zawyża wynik**\n\n"
+            "• **gross margin** `=(revenue − cost) / revenue` → **standard księgowy**\n\n"
+            "AI obliczy oba wzory poprawnie. Ekspert finansowy decyduje, "
+            "która liczba trafia na slajd zarządu."
+        )
+    with right:
+        render_section_title("Wykres różnicy")
+        chart_df = margins_df[
+            ["Oddział", "Marża wg błędnego wzoru (%)", "Marża brutto — poprawny wzór (%)"]
+        ]
+        st.bar_chart(chart_df.set_index("Oddział"), height=335)
+        st.caption(
+            "Błędny wzór systematycznie zawyża wynik. Dla zarządu firmy — to zupełnie inna interpretacja."
+        )
+
+    render_statement(
+        "Definicje KPI nie są technologią. Są decyzją biznesową — i wciąż należą do człowieka."
     )
 
 
 def scene_live_demo(state: DemoState) -> None:
     render_eyebrow("Demo na żywo")
-    render_medium_title("Zobacz, jak Python prowadzi AI krok po kroku.")
+    render_medium_title("Cały pipeline z poprzednich slajdów — w jednym kliknięciu.")
+    render_subtitle(
+        "Wpisz dowolne pytanie. Patrzcie na st.status — to pięć kroków, "
+        "które przed chwilą omawialiśmy, tylko że tym razem na żywo."
+    )
 
     if "live_demo_question" not in st.session_state:
         st.session_state.live_demo_question = DEFAULT_QUESTION
@@ -1353,61 +1328,56 @@ def scene_live_demo(state: DemoState) -> None:
         run_agent(live_state)
 
 
-def scene_guardrails(state: DemoState) -> None:
-    render_eyebrow("Kontrola wyników AI")
-    render_medium_title("AI jest szybkie, ale wymaga kontroli.")
+def scene_trust(state: DemoState) -> None:
+    render_eyebrow("Skąd wiemy, że agentowi można ufać")
+    render_medium_title("Walidacja sprawdza jedno pytanie. Pomiar — tysiąc pytań.")
     render_subtitle(
-        "Python sprawdza każde zapytanie, zanim ono dotknie firmowych danych. "
-        "Jak wewnętrzny audyt — tylko że dzieje się automatycznie."
+        "Zaufanie do AI nie wynika z wiary. Wynika z dwóch warstw kontroli: "
+        "blokady ryzykownych zapytań i pomiaru, jak agent radzi sobie na dłuższą metę."
     )
 
-    risky_sql = "SELECT * FROM branch_monthly_performance"
+    render_section_title("1. Kontrola pojedynczego zapytania — zanim trafi do hurtowni")
+
+    risky_sql = "DROP TABLE branch_monthly_performance"
     c1, c2 = st.columns(2, vertical_alignment="top")
     with c1:
-        render_section_title("✓ Lepsze zapytanie")
+        st.markdown("**✓ Zapytanie wygenerowane z kontekstem**")
         st.code(state.strong_sql, language="sql")
         render_validation(validate_sql(state.strong_sql))
     with c2:
-        render_section_title("✕ Ryzykowne zapytanie")
+        st.markdown("**✕ Zapytanie, które zniszczyłoby dane**")
         st.code(risky_sql, language="sql")
         render_validation(validate_sql(risky_sql))
 
-    render_statement(
-        "Najczęstsze ryzyko w analityce AI to nie spektakularna awaria, tylko pewnie brzmiąca odpowiedź "
-        "oparta na złej definicji, braku filtra lub zbyt szerokim zakresie danych."
-    )
-
-
-def scene_observability(_: DemoState) -> None:
-    render_eyebrow("Czy to w ogóle działa")
-    render_medium_title("Demo wygląda dobrze. A jak to wygląda na 1000 pytaniach?")
-    render_subtitle(
-        "Bez liczb nie wiemy, czy ufać agentowi. Mierzymy: ile pytań się udało, "
-        "ile się nie udało i — co najważniejsze — dlaczego."
-    )
+    st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
+    render_section_title("2. Pomiar tysiąca zapytań — czy agent jest skuteczny")
 
     logs_df, summary = load_observability_data()
+    success_pct = (
+        round((summary.successful_runs / summary.total_runs) * 100, 1)
+        if summary.total_runs
+        else 0.0
+    )
 
-    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-    kpi1.metric("Wszystkich pytań", summary.total_runs)
-    kpi2.metric("Udanych odpowiedzi", summary.successful_runs)
-    kpi3.metric("Jak często się myli", f"{summary.failure_rate_pct}%")
-    kpi4.metric("Średni czas odpowiedzi", f"{summary.avg_response_time_seconds}s")
+    kpi1, kpi2, kpi3 = st.columns(3)
+    kpi1.metric("Zadanych pytań", summary.total_runs)
+    kpi2.metric("Odpowiedzi nadających się do raportu", f"{success_pct}%")
+    kpi3.metric("Średni czas odpowiedzi", f"{summary.avg_response_time_seconds}s")
 
     chart_col, table_col = st.columns([1, 1.6], vertical_alignment="top")
     with chart_col:
-        render_section_title("Kontekst biznesowy decyduje o jakości")
+        st.markdown("**Wynik zależy od jakości kontekstu**")
         failure_df = (
-            pd.DataFrame({"odsetek_błędów_%": summary.failure_rate_by_metadata})
+            pd.DataFrame({"% błędnych odpowiedzi": summary.failure_rate_by_metadata})
             .rename_axis("Jakość kontekstu")
             .reset_index()
         )
-        st.bar_chart(failure_df, x="Jakość kontekstu", y="odsetek_błędów_%", height=320)
+        st.bar_chart(failure_df, x="Jakość kontekstu", y="% błędnych odpowiedzi", height=280)
         st.caption(
-            "Z dobrym kontekstem agent działa lepiej. Bez kontekstu zaczyna zgadywać."
+            "Z dobrym kontekstem agent pomyłki praktycznie nie robi. Bez kontekstu — zgaduje."
         )
     with table_col:
-        render_section_title("Ostatnie pytania i ich wyniki")
+        st.markdown("**Ostatnie pytania i ich wyniki**")
         logs_view = logs_df.rename(
             columns={
                 "question_id": "id",
@@ -1419,81 +1389,62 @@ def scene_observability(_: DemoState) -> None:
                 "rows_returned": "wierszy",
             }
         )
-        st.dataframe(logs_view, width="stretch", hide_index=True, height=320)
+        st.dataframe(logs_view, width="stretch", hide_index=True, height=280)
 
     render_statement(
-        "W realnym świecie nie pytamy „czy AI dało odpowiedź”. Pytamy: "
-        "ile razy odpowiedź była poprawna, użyteczna i bezpieczna."
+        "W realnym świecie nie pytamy „czy AI dało odpowiedź”. Pytamy: ile razy odpowiedź "
+        "była poprawna, użyteczna i bezpieczna — i mierzymy to w pandas."
     )
 
 
-def scene_finance_kpi(_: DemoState) -> None:
-    render_eyebrow("Wiedza domenowa wciąż jest kluczowa")
-    render_medium_title("Liczbę policzy AI. Ekspert decyduje, czy to dobra liczba.")
+def scene_foundations_code(_: DemoState) -> None:
+    render_eyebrow("Moment aha")
+    render_medium_title("Wszystko, co właśnie zobaczyliście, zbudowane jest z tego, co znacie z zajęć.")
     render_subtitle(
-        "AI nie wie samo z siebie, że marża brutto liczy się względem przychodu, a nie kosztu. "
-        "Tę decyzję wciąż podejmuje człowiek z działu finansów."
+        "Zaawansowany system AI to nie magia. To słownik, funkcja, warunek i pandas — "
+        "ułożone w przepływ."
     )
 
-    margins_df = load_margin_data().rename(
-        columns={
-            "branch": "Oddział",
-            "revenue": "Przychód",
-            "cost": "Koszt",
-            "markup_naive_pct": "Marża wg błędnego wzoru (%)",
-            "gross_margin_pct_correct": "Marża brutto — poprawny wzór (%)",
-            "delta_pp": "Różnica (pp)",
-        }
-    )
-
-    left, right = st.columns([1.35, 1], vertical_alignment="top")
+    render_section_title("Fundament z zajęć ↔ rola w systemie AI")
+    left, right = st.columns([1.05, 1.15], vertical_alignment="top")
     with left:
-        render_section_title("Ta sama firma. Dwa różne wzory. Dwa różne wnioski.")
-        st.dataframe(margins_df, width="stretch", hide_index=True)
-        st.info(explain_difference())
+        st.markdown('<div class="foundation-grid">', unsafe_allow_html=True)
+        render_foundation_item("Słowniki", "Przechowują definicje KPI, konfigurację i kontekst biznesowy.")
+        render_foundation_item("Funkcje", "Dzielą proces na kroki: prompt, walidacja, wykonanie, wynik.")
+        render_foundation_item("if / warunki", "Kontrolują, czy wynik AI można bezpiecznie wykonać.")
+        render_foundation_item("pandas", "Analizuje dane, logi, skuteczność i błędy działania systemu.")
+        st.markdown('</div>', unsafe_allow_html=True)
     with right:
-        render_section_title("Wykres różnicy")
-        chart_df = margins_df[
-            ["Oddział", "Marża wg błędnego wzoru (%)", "Marża brutto — poprawny wzór (%)"]
-        ]
-        st.bar_chart(chart_df.set_index("Oddział"), height=335)
-        st.caption(
-            "Błędny wzór systematycznie zawyża wynik. Dla zarządu firmy — to może oznaczać zupełnie inną interpretację."
+        render_flow_steps(
+            [
+                ("Słownik KPI", "Definicja marży, właściciel, wzór, opis biznesowy."),
+                ("Funkcja promptu", "Składa pytanie użytkownika z kontekstem dla AI."),
+                ("Warunek bezpieczeństwa", "Blokuje ryzykowne zapytania przed wykonaniem."),
+                ("DataFrame z logami", "Pokazuje, kiedy agent działa, a kiedy się myli."),
+            ]
         )
 
-    render_statement(
-        "Definicje KPI nie są technologią. Są decyzją biznesową — i wciąż należą do człowieka."
-    )
-
-
-def scene_real_code(_: DemoState) -> None:
-    render_eyebrow("Podstawy Pythona w praktyce")
-    render_medium_title("To, co wygląda jak system AI, składa się z elementów, które już znacie.")
-    render_subtitle(
-        "Cztery krótkie przykłady: słownik, funkcja, warunek i pandas. "
-        "To wystarczy, żeby zrozumieć logikę bardzo zaawansowanego rozwiązania."
-    )
-
+    st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
+    render_section_title("A teraz dokładnie ten sam kod — w czterech fragmentach")
     st.markdown('<div class="before-code-tabs"></div>', unsafe_allow_html=True)
 
     snippet_tabs = st.tabs([snippet.title.split(" — ")[0] for snippet in PRESENTATION_CODE_SNIPPETS])
-
     for tab, snippet in zip(snippet_tabs, PRESENTATION_CODE_SNIPPETS):
         with tab:
-            left, right = st.columns([0.9, 1.45], vertical_alignment="top", gap="large")
-            with left:
+            l, r = st.columns([0.9, 1.45], vertical_alignment="top", gap="large")
+            with l:
                 render_section_title(snippet.title)
                 st.markdown(
                     f"<div class='real-code-explain'>{html.escape(snippet.business_message)}</div>",
                     unsafe_allow_html=True,
                 )
                 st.info(snippet.discussion_point)
-            with right:
+            with r:
                 st.code(snippet.code, language="python")
 
     render_statement(
-        "To nie są abstrakcyjne podstawy. Słownik, funkcja, if i pandas mogą stać się szkieletem "
-        "systemu, który łączy wiedzę finansową, dane i AI."
+        "Jeśli rozumiecie słownik, funkcję, if i pandas — rozumiecie fundament. "
+        "Reszta to ułożenie tych klocków w przepływ."
     )
 
 
@@ -1502,17 +1453,17 @@ def scene_conclusion(_: DemoState) -> None:
         """
         <div class="hero-panel">
             <div class="eyebrow">Podsumowanie</div>
-            <div class="big-title">Podstawy Pythona dają dźwignię. AI tę dźwignię wzmacnia.</div>
+            <div class="big-title">Python obniża barierę. AI podnosi wagę fundamentów.</div>
             <div class="subtitle">
-                Nie po to, by każdy został programistą. Po to, by osoby domenowe mogły budować,
-                automatyzować i kontrolować coraz bardziej zaawansowane rozwiązania analityczne.
+                Nie po to, by każdy został programistą. Po to, by osoby z wiedzą domenową
+                mogły budować, kontrolować i interpretować coraz bardziej zaawansowane rozwiązania.
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2 = st.columns(2)
     with c1:
         render_card(
             "AI obniża barierę techniczną",
@@ -1522,33 +1473,26 @@ def scene_conclusion(_: DemoState) -> None:
     with c2:
         render_card(
             "Ale rośnie waga fundamentów",
-            "Dane, definicje KPI, kontekst, sprawdzenia, bezpieczeństwo i właściwa interpretacja.",
+            "Definicje KPI, kontekst biznesowy, walidacja, pomiar skuteczności — "
+            "i właściwa interpretacja wyniku.",
             strong=True,
-        )
-    with c3:
-        render_card(
-            "Najmocniejszy profil na rynku",
-            "Finanse + dane + Python + AI. Nie zamiast wiedzy domenowej — tylko na jej fundamencie.",
         )
 
     render_statement(
-        "Największą przewagą nie będzie samo używanie AI. Będzie nią rozumienie, "
-        "kiedy AI daje odpowiedź, której można zaufać — i umiejętność zbudowania prostego systemu, który to sprawdza."
+        "Największą przewagą nie będzie samo używanie AI. Będzie nią rozumienie, kiedy AI "
+        "daje odpowiedź, której można zaufać — i umiejętność zbudowania systemu, który to sprawdza."
     )
 
 
 SCENES: list[Scene] = [
-    Scene("scale", "Wprowadzenie", scene_scale),
-    Scene("python_role", "Dlaczego Python", scene_python_role),
-    Scene("foundations", "Fundamenty z zajęć", scene_foundations),
-    Scene("business_question", "Wystarczy zapytać po polsku", scene_business_question),
-    Scene("metadata", "Kontekst zmienia wszystko", scene_metadata),
-    Scene("live_demo", "Demo na żywo", scene_live_demo),
-    Scene("guardrails", "Kontrola wyników AI", scene_guardrails),
-    Scene("observability", "Czy to działa naprawdę", scene_observability),
+    Scene("hook", "Rola analityka się zmienia", scene_hook),
+    Scene("python_pipeline", "Python łączy biznes z AI", scene_python_pipeline),
+    Scene("metadata", "Większy model nie naprawi złych definicji", scene_metadata),
     Scene("finance_kpi", "KPI to wciąż decyzja człowieka", scene_finance_kpi),
-    Scene("real_code", "Pod spodem to znane podstawy", scene_real_code),
-    Scene("conclusion", "Podsumowanie", scene_conclusion),
+    Scene("live_demo", "Demo na żywo", scene_live_demo),
+    Scene("trust", "Skąd wiemy, że agentowi można ufać", scene_trust),
+    Scene("foundations_code", "Słownik, funkcja, if, pandas", scene_foundations_code),
+    Scene("conclusion", "Python + AI = dźwignia", scene_conclusion),
 ]
 
 
